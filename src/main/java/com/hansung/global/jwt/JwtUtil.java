@@ -23,17 +23,18 @@ public class JwtUtil {
         this.expiration = expiration;
     }
 
-    public String generateToken(String email) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .subject(email)
+                .subject(String.valueOf(userId)) // userId를 subject에 저장
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(secretKey)
                 .compact();
     }
 
-    public String getEmail(String token) {
-        return getClaims(token).getSubject();
+
+    public Long extractUserId(String token) {
+        return Long.parseLong(getClaims(token).getSubject());
     }
 
     public boolean isValid(String token) {
