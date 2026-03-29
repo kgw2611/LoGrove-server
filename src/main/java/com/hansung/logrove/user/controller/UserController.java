@@ -2,6 +2,7 @@ package com.hansung.logrove.user.controller;
 
 import com.hansung.logrove.global.jwt.JwtUtil;
 import com.hansung.logrove.global.response.ApiResponse;
+import com.hansung.logrove.user.dto.SignUpRequest;
 import com.hansung.logrove.user.dto.UserResponse;
 import com.hansung.logrove.user.dto.UserUpdateRequest;
 import com.hansung.logrove.user.service.UserService;
@@ -20,6 +21,14 @@ public class UserController {
 
     private final UserService userService;
     private final JwtUtil jwtUtil;
+
+    // 회원가입 - 인증 불필요
+    @Operation(summary = "회원가입")
+    @PostMapping
+    public ResponseEntity<ApiResponse<UserResponse>> register(
+            @Valid @RequestBody SignUpRequest request) {
+        return ResponseEntity.ok(ApiResponse.ok(userService.register(request)));
+    }
 
     // JWT 토큰에서 userId 추출 후 마이페이지 조회
     @Operation(summary = "마이페이지 조회")
