@@ -38,7 +38,7 @@ public class UserService {
 
         // 기본 역할(USER) 조회
         UserRole role = userRoleRepository.findByRole("USER")
-                .orElseThrow(() -> new LoGroveException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new LoGroveException(ErrorCode.INTERNAL_SERVER_ERROR));
 
         User user = User.builder()
                 .name(request.getName())

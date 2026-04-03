@@ -26,6 +26,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -136,5 +138,29 @@ public class PostService {
         if (!post.getUser().getId().equals(userId)) {
             throw new LoGroveException(ErrorCode.FORBIDDEN);
         }
+    }
+
+    // ── 게시판 내 검색 ────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public Page<PostListResponse> searchPosts(BoardType boardType, String title, List<Long> tagIds, Pageable pageable) {
+        // 제목 + 태그 복합 검색
+        if (title != null && tagIds != null) {
+            return postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, title, tagIds, pageable)
+                    .map(PostListResponse::from);
+        }
+        // 제목만 검색
+        if (title != null) {
+            return postRepository.findByBoardTypeAndTitleContaining(boardType, title, pageable)
+                    .map(PostListResponse::from);
+        }
+        // 태그만 검색
+        if (tagIds != null) {
+            return postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable)
+                    .map(PostListResponse::from);
+        }
+        // 검색 조건 없음 — 게시판 전체 목록
+        return postRepository.findByBoardType(boardType, pageable)
+                .map(PostListResponse::from);
     }
 }

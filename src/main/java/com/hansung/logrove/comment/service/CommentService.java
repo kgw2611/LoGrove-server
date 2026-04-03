@@ -138,4 +138,12 @@ public class CommentService {
             throw new LoGroveException(ErrorCode.FORBIDDEN);
         }
     }
+
+    // ── 내 댓글 목록 조회 ────────────────────────────────────────
+    @Transactional(readOnly = true)
+    public List<CommentResponse> getMyComments(Long userId) {
+        return commentRepository.findByUser_Id(userId).stream()
+                .map(CommentResponse::from)
+                .collect(Collectors.toList());
+    }
 }

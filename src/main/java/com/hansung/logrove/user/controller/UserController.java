@@ -1,7 +1,11 @@
 package com.hansung.logrove.user.controller;
 
+import com.hansung.logrove.comment.dto.CommentResponse;
+import com.hansung.logrove.comment.service.CommentService;
 import com.hansung.logrove.global.jwt.JwtUtil;
 import com.hansung.logrove.global.response.ApiResponse;
+import com.hansung.logrove.post.dto.PostListResponse;
+import com.hansung.logrove.post.service.PostService;
 import com.hansung.logrove.user.dto.SignUpRequest;
 import com.hansung.logrove.user.dto.UserResponse;
 import com.hansung.logrove.user.dto.UserUpdateRequest;
@@ -13,6 +17,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -20,6 +26,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final PostService postService;
+    private final CommentService commentService;
     private final JwtUtil jwtUtil;
 
     // 회원가입 - 인증 불필요
@@ -30,7 +38,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok(userService.register(request)));
     }
 
-    // JWT 토큰에서 userId 추출 후 마이페이지 조회
+    // 마이페이지 조회
     @Operation(summary = "마이페이지 조회")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> getMyInfo(
@@ -39,7 +47,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok(userService.getMyInfo(userId)));
     }
 
-    // 닉네임, 이메일 수정
+    // 회원 정보 수정
     @Operation(summary = "회원 정보 수정")
     @PutMapping("/me")
     public ResponseEntity<ApiResponse<UserResponse>> updateMyInfo(
@@ -49,7 +57,7 @@ public class UserController {
         return ResponseEntity.ok(ApiResponse.ok(userService.updateMyInfo(userId, request)));
     }
 
-    // 회원 탈퇴 - 성공 시 데이터 없이 응답
+    // 회원 탈퇴
     @Operation(summary = "회원 탈퇴")
     @DeleteMapping("/me")
     public ResponseEntity<ApiResponse<Void>> deleteUser(
@@ -57,5 +65,23 @@ public class UserController {
         Long userId = jwtUtil.extractUserId(token);
         userService.deleteUser(userId);
         return ResponseEntity.ok(ApiResponse.ok(null));
+    }
+
+    // 내가 작성한 게시글 목록
+    @Operation(summary = "작성 게시글 목록")
+    @GetMapping("/me/myposts")
+    public ResponseEntity<ApiResponse<List<PostListResponse>>> getMyPosts(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(postService.getMyPosts(userId)));
+    }
+
+    // 내가 작성한 댓글 목록
+    @Operation(summary = "작성 댓글 목록")
+    @GetMapping("/me/mycomments")
+    public ResponseEntity<ApiResponse<List<CommentResponse>>> getMyComments(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(commentService.getMyComments(userId)));
     }
 }

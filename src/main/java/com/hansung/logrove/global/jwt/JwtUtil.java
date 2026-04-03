@@ -34,16 +34,23 @@ public class JwtUtil {
 
 
     public Long extractUserId(String token) {
-        return Long.parseLong(getClaims(token).getSubject());
+        return Long.parseLong(getClaims(stripBearer(token)).getSubject());
     }
 
     public boolean isValid(String token) {
         try {
-            getClaims(token);
+            getClaims(stripBearer(token));
             return true;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    private String stripBearer(String token) {
+        if (token != null && token.startsWith("Bearer ")) {
+            return token.substring(7);
+        }
+        return token;
     }
 
     private Claims getClaims(String token) {

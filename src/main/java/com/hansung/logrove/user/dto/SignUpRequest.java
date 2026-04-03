@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SignUpRequest {
+public class SignUpRequest { //회원가입 dto
 
     @NotBlank(message = "이름을 입력해주세요.")
     private String name;
