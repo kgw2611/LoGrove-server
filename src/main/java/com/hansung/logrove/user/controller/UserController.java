@@ -10,6 +10,10 @@ import com.hansung.logrove.user.dto.SignUpRequest;
 import com.hansung.logrove.user.dto.UserResponse;
 import com.hansung.logrove.user.dto.UserUpdateRequest;
 import com.hansung.logrove.user.service.UserService;
+import com.hansung.logrove.mission.dto.MissionListResponse;
+import com.hansung.logrove.mission.dto.PhotoListResponse;
+import com.hansung.logrove.mission.service.MissionService;
+import com.hansung.logrove.user.dto.GameProfileResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -29,6 +33,7 @@ public class UserController {
     private final PostService postService;
     private final CommentService commentService;
     private final JwtUtil jwtUtil;
+    private final MissionService missionService;
 
     // 회원가입 - 인증 불필요
     @Operation(summary = "회원가입")
@@ -83,5 +88,32 @@ public class UserController {
             @RequestHeader("Authorization") String token) {
         Long userId = jwtUtil.extractUserId(token);
         return ResponseEntity.ok(ApiResponse.ok(commentService.getMyComments(userId)));
+    }
+
+    // 완료 미션 목록
+    @Operation(summary = "완료 미션 목록")
+    @GetMapping("/me/missionlist")
+    public ResponseEntity<ApiResponse<List<MissionListResponse>>> getMissionList(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(missionService.getMissionList(userId)));
+    }
+
+    // 사진미션 제출 목록
+    @Operation(summary = "사진미션 제출 목록")
+    @GetMapping("/me/photolist")
+    public ResponseEntity<ApiResponse<List<PhotoListResponse>>> getPhotoList(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(missionService.getPhotoList(userId)));
+    }
+
+    // 게임 이력 프로필
+    @Operation(summary = "게임 이력 프로필")
+    @GetMapping("/me/game-profile")
+    public ResponseEntity<ApiResponse<GameProfileResponse>> getGameProfile(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(userService.getGameProfile(userId)));
     }
 }

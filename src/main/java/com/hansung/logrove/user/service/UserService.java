@@ -9,6 +9,7 @@ import com.hansung.logrove.user.entity.User;
 import com.hansung.logrove.user.entity.UserRole;
 import com.hansung.logrove.user.repository.UserRepository;
 import com.hansung.logrove.user.repository.UserRoleRepository;
+import com.hansung.logrove.user.dto.GameProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -82,5 +83,13 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
         userRepository.delete(user);
+    }
+
+    // 게임 이력 프로필 조회 - /api/users/me/game-profile
+    @Transactional(readOnly = true)
+    public GameProfileResponse getGameProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
+        return GameProfileResponse.from(user);
     }
 }
