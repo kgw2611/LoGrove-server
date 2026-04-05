@@ -3,6 +3,8 @@ package com.hansung.logrove.comment.entity;
 import com.hansung.logrove.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(
@@ -21,6 +23,7 @@ public class CommentLike {
 
     // 좋아요를 누른 사용자 (N:1) — 지연 로딩으로 불필요한 쿼리 방지
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

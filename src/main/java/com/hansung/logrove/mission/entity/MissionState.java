@@ -4,6 +4,8 @@ import com.hansung.logrove.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 import java.io.Serializable;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "MISSION_STATE")
@@ -21,6 +23,7 @@ public class MissionState {
 
     @Id // 3. 복합키의 두 번째 구성 요소
     @ManyToOne(fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id")
     private User user;
 
