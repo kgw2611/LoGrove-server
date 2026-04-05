@@ -54,7 +54,7 @@ public class PostService {
             for (Long tagId : request.getTagIds()) {
                 Tag tag = tagRepository.findById(tagId)
                         .orElseThrow(() -> new LoGroveException(ErrorCode.TAG_NOT_FOUND));
-                postTagRepository.save(new PostTag(post, tag));
+                post.getTags().add(new PostTag(post, tag));
             }
         }
 

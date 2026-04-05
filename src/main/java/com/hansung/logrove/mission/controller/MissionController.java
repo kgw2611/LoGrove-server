@@ -6,6 +6,7 @@ import com.hansung.logrove.mission.dto.*;
 import com.hansung.logrove.mission.service.MissionImageService;
 import com.hansung.logrove.mission.service.MissionService;
 import com.hansung.logrove.mission.service.MissionStairService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +23,7 @@ public class MissionController {
     private final MissionImageService missionImageService;
     private final JwtUtil jwtUtil;
 
-    // 단계별 학습 메인 리스트 조회
+    @Operation(summary = "단계별 학습 메인 리스트 조회")
     // GET /api/learning/stair
     @GetMapping("/stair")
     public ApiResponse<List<MissionResponse>> getStairMissions(
@@ -31,7 +32,7 @@ public class MissionController {
         return ApiResponse.ok(missionService.getStairMissionList(userId));
     }
 
-    // 단계별 학습 객관식 화면
+    @Operation(summary = "단계별 학습 객관식 화면")
     // GET /api/learning/stair/{mission_id}/multiple
     @GetMapping("/stair/{mission_id}/multiple")
     public ApiResponse<MissionStairDetailResponse> getMultipleQuiz(
@@ -39,7 +40,7 @@ public class MissionController {
         return ApiResponse.ok(missionStairService.getStairContent(missionId));
     }
 
-    // 단계별 학습 객관식 제출
+    @Operation(summary = "단계별 학습 객관식 제출")
     // POST /api/learning/stair/{mission_id}/multiple/submit
     @PostMapping("/stair/{mission_id}/multiple/submit")
     public ApiResponse<Boolean> submitMultiple(
@@ -50,7 +51,7 @@ public class MissionController {
         return ApiResponse.ok(missionStairService.submitAnswer(userId, missionId, request));
     }
 
-    // 단계별 학습 단답식 화면
+    @Operation(summary = "단계별 학습 단답식 화면")
     // GET /api/learning/stair/{mission_id}/short
     @GetMapping("/stair/{mission_id}/short")
     public ApiResponse<MissionStairDetailResponse> getShortQuiz(
@@ -58,7 +59,7 @@ public class MissionController {
         return ApiResponse.ok(missionStairService.getStairContent(missionId));
     }
 
-    // 단계별 학습 단답식 제출
+    @Operation(summary = "단계별 학습 단답식 제출")
     // POST /api/learning/stair/{mission_id}/short/submit
     @PostMapping("/stair/{mission_id}/short/submit")
     public ApiResponse<Boolean> submitShort(
@@ -69,7 +70,7 @@ public class MissionController {
         return ApiResponse.ok(missionStairService.submitAnswer(userId, missionId, request));
     }
 
-    // 사진 제출형 학습 리스트 조회
+    @Operation(summary = "사진 제출형 학습 리스트 조회")
     // GET /api/learning/photo
     @GetMapping("/photo")
     public ApiResponse<List<MissionResponse>> getPhotoMissions(
@@ -78,7 +79,7 @@ public class MissionController {
         return ApiResponse.ok(missionService.getPhotoMissionList(userId));
     }
 
-    // 사진 학습 상세 화면
+    @Operation(summary = "사진 학습 상세 화면")
     // GET /api/learning/{mission_id}/photo
     @GetMapping("/{mission_id}/photo")
     public ApiResponse<MissionImageDetailResponse> getPhotoMissionDetail(
@@ -86,7 +87,7 @@ public class MissionController {
         return ApiResponse.ok(missionImageService.getPhotoMissionDetail(missionId));
     }
 
-    // 사진 학습 제출
+    @Operation(summary = "사진 학습 제출")
     // POST /api/learning/{mission_id}/photo/submit
     @PostMapping(value = "/{mission_id}/photo/submit", consumes = "multipart/form-data")
     public ApiResponse<MissionResultResponse> submitPhoto(
