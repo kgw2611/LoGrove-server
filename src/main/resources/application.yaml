@@ -6,7 +6,6 @@ spring:
     url: jdbc:mysql://3.35.209.68:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: logrove
     password: logrove
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -15,7 +14,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.MySQL8Dialect
 
 server:
   port: 8080
+
+jwt:
+  secret: logrove-secret-key-must-be-at-least-32-bytes!!
+  expiration: 86400000
+
+gemini:
+  api:
+    key: temp
