@@ -32,6 +32,7 @@ public class MissionService {
 
         // 2. 각 미션 엔티티를 MissionResponse DTO로 변환합니다.
         return missions.stream()
+                .filter(mission -> mission.getMissionStair() != null) // stair 미션만
                 .map(mission -> {
                     // ERD의 MISSION_STATE 테이블에서 유저의 완료 여부를 확인합니다.
                     // 데이터가 없으면 아직 미완료(INCOMPLETE) 상태로 정의합니다.
@@ -60,6 +61,7 @@ public class MissionService {
         List<Mission> missions = missionRepository.findAll();
 
         return missions.stream()
+                .filter(mission -> mission.getMissionImage() != null) // photo 미션만
                 .map(mission -> {
                     // 유저별 진행 상태 조회 (단계별 학습과 동일한 로직 공유)
                     String state = missionStateRepository.findByUserIdAndMissionId(userId, mission.getId())

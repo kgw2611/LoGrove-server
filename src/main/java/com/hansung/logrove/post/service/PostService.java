@@ -20,6 +20,9 @@ import com.hansung.logrove.tag.entity.Tag;
 import com.hansung.logrove.tag.repository.TagRepository;
 import com.hansung.logrove.user.entity.User;
 import com.hansung.logrove.user.repository.UserRepository;
+import com.hansung.logrove.storage.service.ImageStorageService;
+import com.hansung.logrove.storage.dto.ImageUploadResult;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,18 +41,33 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final ImageStorageService imageStorageService;
 
     // ── 게시글 작성 ──────────────────────────────────────────
 
     @Transactional
-    public PostResponse createPost(Long userId, PostCreateRequest request) {
+    public PostResponse createPost(Long userId, PostCreateRequest request, List<MultipartFile> images) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
+
+        // 갤러리 게시판은 이미지 필수
+        if (request.getBoardType() == BoardType.GALLERY &&
+                (images == null || images.isEmpty())) {
+            throw new LoGroveException(ErrorCode.IMAGE_REQUIRED);
+        }
 
         Post post = new Post(request.getTitle(), request.getContent(), request.getBoardType(), user);
         postRepository.save(post);
 
-        // 태그 연결 — 없는 태그명이면 새로 생성 (find-or-create)
+        // 이미지 저장
+        if (images != null) {
+            for (int i = 0; i < images.size(); i++) {
+                ImageUploadResult result = imageStorageService.storePostImage(post.getId(), images.get(i));
+                post.getImages().add(new PostImage(result.getUrl(), i, post));
+            }
+        }
+
+        // 태그 연결
         if (request.getTagIds() != null) {
             for (Long tagId : request.getTagIds()) {
                 Tag tag = tagRepository.findById(tagId)
@@ -144,23 +162,19 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostListResponse> searchPosts(BoardType boardType, String title, List<Long> tagIds, Pageable pageable) {
-        // 제목 + 태그 복합 검색
         if (title != null && tagIds != null) {
             return postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, title, tagIds, pageable)
                     .map(PostListResponse::from);
         }
-        // 제목만 검색
         if (title != null) {
             return postRepository.findByBoardTypeAndTitleContaining(boardType, title, pageable)
                     .map(PostListResponse::from);
         }
-        // 태그만 검색
         if (tagIds != null) {
             return postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable)
                     .map(PostListResponse::from);
         }
-        // 검색 조건 없음 — 게시판 전체 목록
-        return postRepository.findByBoardType(boardType, pageable)
-                .map(PostListResponse::from);
+        // 프론트에서 막지만 혹시 모를 경우 빈 결과 반환
+        return Page.empty(pageable);
     }
 }

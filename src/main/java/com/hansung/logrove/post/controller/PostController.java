@@ -16,8 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -31,12 +33,13 @@ public class PostController {
     private final JwtUtil jwtUtil;
 
     @Operation(summary = "게시글 작성")
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
             @RequestHeader("Authorization") String token,
-            @Valid @RequestBody PostCreateRequest request) {
+            @Valid @ModelAttribute PostCreateRequest request,
+            @RequestParam(value = "images", required = false) List<MultipartFile> images) {
         Long userId = jwtUtil.extractUserId(token);
-        return ResponseEntity.ok(ApiResponse.ok(postService.createPost(userId, request)));
+        return ResponseEntity.ok(ApiResponse.ok(postService.createPost(userId, request, images)));
     }
 
     @Operation(summary = "게시글 상세 조회")
@@ -45,9 +48,17 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId)));
     }
 
-    @Operation(summary = "게시판별 목록 조회 및 검색")
+    @Operation(summary = "게시판별 목록 조회")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPostsByBoard(
+            @RequestParam BoardType board,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok(postService.getPostsByBoard(board, pageable)));
+    }
+
+    @Operation(summary = "게시판 내 검색 (제목 / 태그 / 복합)")
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> searchPosts(
             @RequestParam BoardType board,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) List<Long> tagIds,
