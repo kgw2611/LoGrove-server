@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springdoc.core.annotations.ParameterObject;
 
 import java.util.List;
 
@@ -48,21 +49,13 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId)));
     }
 
-    @Operation(summary = "게시판별 목록 조회")
+    @Operation(summary = "게시판별 목록 조회 / 검색 (제목, 태그, 복합)")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPostsByBoard(
-            @RequestParam BoardType board,
-            @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(postService.getPostsByBoard(board, pageable)));
-    }
-
-    @Operation(summary = "게시판 내 검색 (제목 / 태그 / 복합)")
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<Page<PostListResponse>>> searchPosts(
+    public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(
             @RequestParam BoardType board,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) List<Long> tagIds,
-            @PageableDefault(size = 10) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(ApiResponse.ok(postService.searchPosts(board, title, tagIds, pageable)));
     }
 

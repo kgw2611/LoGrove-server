@@ -175,6 +175,7 @@ public class PostService {
                     .map(PostListResponse::from);
         }
         // 프론트에서 막지만 혹시 모를 경우 빈 결과 반환
-        return Page.empty(pageable);
+        return postRepository.findByBoardType(boardType, pageable)
+                .map(PostListResponse::from);
     }
 }
