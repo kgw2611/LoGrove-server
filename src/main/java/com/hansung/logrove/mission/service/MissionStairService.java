@@ -57,9 +57,7 @@ public class MissionStairService {
     }
 
     private void updateMissionStatus(Long userId, Long missionId) {
-        MissionState state = missionStateRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new IllegalArgumentException("미션 상태 정보를 찾을 수 없습니다."));
-
-        state.updateStatus(MissionStatus.COMPLETED); // 보라색으로 변경!
+        missionStateRepository.findByUserIdAndMissionId(userId, missionId)
+                .ifPresent(state -> state.updateStatus(MissionStatus.COMPLETED));
     }
 }
