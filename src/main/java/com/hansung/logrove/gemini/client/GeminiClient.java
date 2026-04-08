@@ -74,9 +74,16 @@ public class GeminiClient {
 
     @SuppressWarnings("unchecked")
     private String extractText(Map responseBody) {
-        List<Map> candidates = (List<Map>) responseBody.get("candidates");
-        Map content = (Map) candidates.get(0).get("content");
-        List<Map> parts = (List<Map>) content.get("parts");
-        return (String) parts.get(0).get("text");
+        try {
+            List<Map> candidates = (List<Map>) responseBody.get("candidates");
+            if (candidates == null || candidates.isEmpty()) {
+                throw new RuntimeException("Gemini 응답에 candidates가 없습니다: " + responseBody);
+            }
+            Map content = (Map) candidates.get(0).get("content");
+            List<Map> parts = (List<Map>) content.get("parts");
+            return (String) parts.get(0).get("text");
+        } catch (Exception e) {
+            throw new RuntimeException("Gemini 응답 파싱 실패: " + e.getMessage());
+        }
     }
 }

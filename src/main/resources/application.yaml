@@ -1,11 +1,13 @@
 spring:
   application:
     name: logrove
+  profiles:
+    include: secret          # ← 추가
 
   datasource:
     url: jdbc:mysql://3.35.209.68:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: logrove
-    password: logrove
+    # password는 secret에서 읽음
 
   jpa:
     hibernate:
@@ -24,12 +26,12 @@ server:
   port: 8080
 
 jwt:
-  secret: logrove-secret-key-must-be-at-least-32-bytes!!
+  secret:       # secret에서 읽음
   expiration: 86400000
 
 gemini:
   api:
-    key: AIzaSyA5cQPpbp2lNGsOSSHJ9sp82ilCCZGkK-8
+    key:        # secret에서 읽음
     tag-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
     eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
 
