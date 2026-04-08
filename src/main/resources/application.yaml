@@ -26,14 +26,12 @@ server:
   port: 8080
 
 jwt:
-  secret:       # secret에서 읽음
   expiration: 86400000
 
 gemini:
   api:
-    key:        # secret에서 읽음
-    tag-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
-    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
+    tag-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent
+    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent
 
 storage:
   upload-dir: ./uploads
