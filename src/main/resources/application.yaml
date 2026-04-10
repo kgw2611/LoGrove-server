@@ -5,7 +5,7 @@ spring:
     include: secret          # ← 추가
 
   datasource:
-    url: jdbc:mysql://3.35.209.68:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://3.35.209.68:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: logrove
     # password는 secret에서 읽음
 
@@ -16,6 +16,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect   # ← 이 줄 추가
 
   servlet:
     multipart:
@@ -26,14 +27,12 @@ server:
   port: 8080
 
 jwt:
-  secret:       # secret에서 읽음
   expiration: 86400000
 
 gemini:
   api:
-    key:        # secret에서 읽음
     tag-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
-    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
+    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
 
 storage:
   upload-dir: ./uploads

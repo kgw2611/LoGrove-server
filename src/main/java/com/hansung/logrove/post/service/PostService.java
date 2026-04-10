@@ -50,7 +50,6 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
 
-        // 갤러리 게시판은 이미지 필수
         if (request.getBoardType() == BoardType.GALLERY &&
                 (images == null || images.isEmpty())) {
             throw new LoGroveException(ErrorCode.IMAGE_REQUIRED);
@@ -59,7 +58,6 @@ public class PostService {
         Post post = new Post(request.getTitle(), request.getContent(), request.getBoardType(), user);
         postRepository.save(post);
 
-        // 이미지 저장
         if (images != null) {
             for (int i = 0; i < images.size(); i++) {
                 ImageUploadResult result = imageStorageService.storePostImage(post.getId(), images.get(i));
@@ -67,7 +65,6 @@ public class PostService {
             }
         }
 
-        // 태그 연결
         if (request.getTagIds() != null) {
             for (Long tagId : request.getTagIds()) {
                 Tag tag = tagRepository.findById(tagId)
@@ -94,15 +91,6 @@ public class PostService {
     public Page<PostListResponse> getPostsByBoard(BoardType boardType, Pageable pageable) {
         return postRepository.findByBoardType(boardType, pageable)
                 .map(PostListResponse::from);
-    }
-
-    // ── 내 게시글 목록 ────────────────────────────────────────
-
-    @Transactional(readOnly = true)
-    public java.util.List<PostListResponse> getMyPosts(Long userId) {
-        return postRepository.findByUserId(userId).stream()
-                .map(PostListResponse::from)
-                .toList();
     }
 
     // ── 게시글 수정 ──────────────────────────────────────────
@@ -151,7 +139,6 @@ public class PostService {
                 .orElseThrow(() -> new LoGroveException(ErrorCode.POST_NOT_FOUND));
     }
 
-    // 작성자 본인 여부 확인
     private void validateOwner(Post post, Long userId) {
         if (!post.getUser().getId().equals(userId)) {
             throw new LoGroveException(ErrorCode.FORBIDDEN);
@@ -174,7 +161,6 @@ public class PostService {
             return postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable)
                     .map(PostListResponse::from);
         }
-        // 프론트에서 막지만 혹시 모를 경우 빈 결과 반환
         return postRepository.findByBoardType(boardType, pageable)
                 .map(PostListResponse::from);
     }

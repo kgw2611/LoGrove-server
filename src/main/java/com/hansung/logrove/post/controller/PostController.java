@@ -98,12 +98,4 @@ public class PostController {
         postService.unlikePost(userId, postId);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
-
-    @Operation(summary = "내 게시글 목록")
-    @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<PostListResponse>>> getMyPosts(
-            @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.extractUserId(token);
-        return ResponseEntity.ok(ApiResponse.ok(postService.getMyPosts(userId)));
-    }
 }

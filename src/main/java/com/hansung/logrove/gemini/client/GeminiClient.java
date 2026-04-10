@@ -20,7 +20,7 @@ public class GeminiClient {
 
     @Value("${gemini.api.key}")
     private String apiKey;
-
+    
     @Value("${gemini.api.tag-url}")
     private String tagUrl;
 
