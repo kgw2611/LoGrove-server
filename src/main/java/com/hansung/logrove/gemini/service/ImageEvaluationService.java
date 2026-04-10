@@ -17,7 +17,7 @@ public class ImageEvaluationService {
     private final GeminiResponseParser geminiResponseParser;
 
     public GeminiEvaluationResponse evaluate(MultipartFile file, String theme, String content, String guide, int passScore) {
-        String prompt = evaluationPromptFactory.create(theme, content, guide);
+        String prompt = evaluationPromptFactory.create(theme, content, guide, passScore);
         String rawResponse = geminiClient.requestEvaluation(file, prompt);
         return geminiResponseParser.parseEvaluationResponse(rawResponse, passScore);
     }

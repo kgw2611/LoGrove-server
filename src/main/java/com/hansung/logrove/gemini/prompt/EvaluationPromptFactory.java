@@ -5,13 +5,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class EvaluationPromptFactory {
 
-    public String create(String theme, String content, String guide) {
+    public String create(String theme, String content, String guide, int passScore) {
         return """
                 You are a strict photography judge.
                 
                 Your task is to evaluate how well the given image satisfies the following photography concept:
                 
-                Concept: "{주제 키워드}"
+                Concept: "%s"
+                Description: "%s"
+                Guide: "%s"
                 
                 Evaluation rules:
                 
@@ -25,23 +27,23 @@ public class EvaluationPromptFactory {
                 
                 Decision rule:
                 
-                - If score >= {threshold} → PASS
+                - If score >= %d → PASS
                 - Else → FAIL
                 
                 Also:
                 
-                - Provide a short explanation (1~2 sentences)
+                - Provide a short explanation (1~2 sentences) in the "reason" field
                 - Response as fast as you can (in 5 seconds)
                 - Response in Korean
                 
                 Output JSON only:
                 
                 {
-                "concept": "{주제 키워드}",
+                "concept": "%s",
                 "score": 0,
                 "reason": "...",
                 "result": "PASS or FAIL"
                 }
-                """.formatted(theme, content, guide);
+                """.formatted(theme, content, guide, passScore, theme);
     }
 }

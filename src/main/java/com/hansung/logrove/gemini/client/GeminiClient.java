@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import jakarta.annotation.PostConstruct;
 
 @Component
 @RequiredArgsConstructor
@@ -20,6 +21,12 @@ public class GeminiClient {
 
     @Value("${gemini.api.key}")
     private String apiKey;
+
+    @PostConstruct
+    public void init() {
+        System.out.println(">>> GEMINI KEY PREFIX: " + apiKey.substring(0, 10));
+        System.out.println(">>> TAG URL: " + tagUrl);
+    }
 
     @Value("${gemini.api.tag-url}")
     private String tagUrl;
