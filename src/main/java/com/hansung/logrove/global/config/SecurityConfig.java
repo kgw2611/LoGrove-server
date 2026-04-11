@@ -41,8 +41,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/auth/**",
                                 "/api/users",
-                                "/images/**",
-                                "/api/gemini/**"
+                                "/images/**"
                         ).permitAll()
                         // 게시글/댓글 조회는 비로그인도 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
