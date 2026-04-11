@@ -5,7 +5,7 @@ spring:
     include: secret          # ← 추가
 
   datasource:
-    url: jdbc:mysql://43.200.183.163:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/logrove_test?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
     username: logrove
     # password는 secret에서 읽음
 
