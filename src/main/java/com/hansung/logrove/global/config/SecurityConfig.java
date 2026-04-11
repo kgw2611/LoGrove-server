@@ -29,6 +29,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // 추가
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -41,8 +42,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/auth/**",
                                 "/api/users",
-                                "/images/**",
-                                "/api/gemini/**"
+                                "/images/**"
                         ).permitAll()
                         // 게시글/댓글 조회는 비로그인도 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
