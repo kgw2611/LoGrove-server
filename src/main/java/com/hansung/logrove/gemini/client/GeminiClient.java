@@ -40,7 +40,8 @@ public class GeminiClient {
     private String call(String url, MultipartFile file, String prompt) {
         try {
             String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
-            String mimeType = file.getContentType() != null ? file.getContentType() : "image/jpeg";
+            String rawMime = file.getContentType() != null ? file.getContentType() : "image/jpeg";
+            String mimeType = rawMime.equalsIgnoreCase("image/jpg") ? "image/jpeg" : rawMime;
 
             // Gemini API 요청 바디 구성
             Map<String, Object> imagePart = Map.of(
