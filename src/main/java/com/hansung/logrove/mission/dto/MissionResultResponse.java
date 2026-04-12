@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class MissionResultResponse {
+    private int score;
     private String feedback;
     private Boolean isSuccess;  // boolean → Boolean (null 표현 가능)
 }

@@ -55,6 +55,8 @@ public class MissionImageService {
         MissionImage missionImage = missionImageRepository.findById(missionId)
                 .orElseThrow(() -> new IllegalArgumentException("미션 정보를 찾을 수 없습니다."));
 
+        System.out.println("1. entity load success");
+
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("제출된 사진 파일이 없습니다.");
         }
@@ -68,8 +70,14 @@ public class MissionImageService {
                 missionImage.getPassScore()
         );
 
+        System.out.println("2. gemini evaluate success");
+        System.out.println("score = " + evaluation.getScore());
+        System.out.println("passed = " + evaluation.isPassed());
+
         // 3. 채점 후 파일 저장 (transferTo 호출)
         ImageUploadResult uploadResult = imageStorageService.storeSubmissionImage(userId, file);
+        System.out.println("3. image upload success");
+        System.out.println("url = " + uploadResult.getUrl());
 
         MissionResultStatus status = evaluation.isPassed()
                 ? MissionResultStatus.SUCCESS : MissionResultStatus.FAIL;
@@ -84,14 +92,17 @@ public class MissionImageService {
                 .build();
 
         missionImageResultRepository.save(resultRecord);
+        System.out.println("4. result save success");
 
         // 5. 미션 성공 시 유저 상태 COMPLETED로 변경
         if (status == MissionResultStatus.SUCCESS) {
             updateUserMissionStatus(userId, missionId);
+            System.out.println("5. mission state update success");
         }
 
         // 6. 결과 반환
         return MissionResultResponse.builder()
+                .score(evaluation.getScore())
                 .feedback(evaluation.getFeedback())
                 .isSuccess(evaluation.isPassed())
                 .build();
