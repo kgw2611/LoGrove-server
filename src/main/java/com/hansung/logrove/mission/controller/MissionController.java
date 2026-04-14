@@ -28,7 +28,7 @@ public class MissionController {
     @GetMapping("/stair")
     public ApiResponse<List<MissionResponse>> getStairMissions(
             @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = extractUserIdFromHeader(token);
         return ApiResponse.ok(missionService.getStairMissionList(userId));
     }
 
@@ -47,7 +47,7 @@ public class MissionController {
             @PathVariable("mission_id") Long missionId,
             @RequestHeader("Authorization") String token,
             @RequestBody MissionSubmitRequest request) {
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = extractUserIdFromHeader(token);
         return ApiResponse.ok(missionStairService.submitAnswer(userId, missionId, request));
     }
 
@@ -66,7 +66,7 @@ public class MissionController {
             @PathVariable("mission_id") Long missionId,
             @RequestHeader("Authorization") String token,
             @RequestBody MissionSubmitRequest request) {
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = extractUserIdFromHeader(token);
         return ApiResponse.ok(missionStairService.submitAnswer(userId, missionId, request));
     }
 
@@ -75,7 +75,7 @@ public class MissionController {
     @GetMapping("/photo")
     public ApiResponse<List<MissionResponse>> getPhotoMissions(
             @RequestHeader("Authorization") String token) {
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = extractUserIdFromHeader(token);
         return ApiResponse.ok(missionService.getPhotoMissionList(userId));
     }
 
@@ -94,7 +94,14 @@ public class MissionController {
             @PathVariable("mission_id") Long missionId,
             @RequestHeader("Authorization") String token,
             @RequestParam("file") MultipartFile file) {
-        Long userId = jwtUtil.extractUserId(token);
+        Long userId = extractUserIdFromHeader(token);
         return ApiResponse.ok(missionImageService.analyzeImage(userId, missionId, file));
+    }
+
+    private Long extractUserIdFromHeader(String authorizationHeader) {
+        String accessToken = authorizationHeader.startsWith("Bearer ")
+                ? authorizationHeader.substring(7)
+                : authorizationHeader;
+        return jwtUtil.extractUserId(accessToken);
     }
 }
