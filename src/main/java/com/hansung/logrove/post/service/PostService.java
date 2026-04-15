@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageImpl;
 
 import java.util.List;
 
@@ -89,8 +90,9 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostListResponse> getPostsByBoard(BoardType boardType, Pageable pageable) {
-        return postRepository.findByBoardType(boardType, pageable)
-                .map(PostListResponse::from);
+        Page<Long> idPage = postRepository.findIdsByBoardType(boardType, pageable);
+        List<Post> posts = postRepository.findByIdsWithTags(idPage.getContent());
+        return toNumberedPage(posts, pageable, idPage.getTotalElements());
     }
 
     // ── 게시글 수정 ──────────────────────────────────────────
@@ -149,19 +151,31 @@ public class PostService {
 
     @Transactional(readOnly = true)
     public Page<PostListResponse> searchPosts(BoardType boardType, String title, List<Long> tagIds, Pageable pageable) {
+        Page<Post> postPage;
         if (title != null && tagIds != null) {
-            return postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, title, tagIds, pageable)
-                    .map(PostListResponse::from);
+            postPage = postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, title, tagIds, pageable);
+        } else if (title != null) {
+            postPage = postRepository.findByBoardTypeAndTitleContaining(boardType, title, pageable);
+        } else if (tagIds != null) {
+            postPage = postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable);
+        } else {
+            Page<Long> idPage = postRepository.findIdsByBoardType(boardType, pageable);
+            List<Post> posts = postRepository.findByIdsWithTags(idPage.getContent());
+            return toNumberedPage(posts, pageable, idPage.getTotalElements());
         }
-        if (title != null) {
-            return postRepository.findByBoardTypeAndTitleContaining(boardType, title, pageable)
-                    .map(PostListResponse::from);
+        return toNumberedPage(postPage.getContent(), pageable, postPage.getTotalElements());
+    }
+
+    // ── 공통: rowNumber 계산 후 Page 반환 ────────────────────────
+
+    private Page<PostListResponse> toNumberedPage(List<Post> posts, Pageable pageable, long totalElements) {
+        long offset = pageable.getOffset();
+        List<PostListResponse> responses = new java.util.ArrayList<>();
+        for (int i = 0; i < posts.size(); i++) {
+            PostListResponse dto = PostListResponse.from(posts.get(i));
+            dto.setRowNumber(totalElements - offset - i);
+            responses.add(dto);
         }
-        if (tagIds != null) {
-            return postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable)
-                    .map(PostListResponse::from);
-        }
-        return postRepository.findByBoardType(boardType, pageable)
-                .map(PostListResponse::from);
+        return new PageImpl<>(responses, pageable, totalElements);
     }
 }
