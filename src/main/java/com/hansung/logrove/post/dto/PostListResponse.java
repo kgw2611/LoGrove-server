@@ -11,6 +11,7 @@ import java.util.List;
 public class PostListResponse {
 
     private Long id;
+    private long rowNumber;
     private String title;
     private int view;
     private int likeCount;
@@ -18,7 +19,7 @@ public class PostListResponse {
     private LocalDateTime createdAt;
     private String nickname;
     private List<String> tagNames;
-    private List<String> imageUrls;  // 추가
+    private List<String> imageUrls;
 
     public static PostListResponse from(Post post) {
         PostListResponse dto = new PostListResponse();
@@ -32,9 +33,13 @@ public class PostListResponse {
         dto.tagNames = post.getTags().stream()
                 .map(pt -> pt.getTag().getName().name())
                 .toList();
-        dto.imageUrls = post.getImages().stream()  // 추가
+        dto.imageUrls = post.getImages().stream()
                 .map(img -> img.getUrl())
                 .toList();
         return dto;
+    }
+
+    public void setRowNumber(long rowNumber) {
+        this.rowNumber = rowNumber;
     }
 }
