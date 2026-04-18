@@ -12,8 +12,18 @@
 
     public interface PostRepository extends JpaRepository<Post, Long> {
 
-        // 게시판 종류별 글 목록 조회 (페이징)
-        Page<Post> findByBoardType(BoardType boardType, Pageable pageable);
+        // 1단계: ID만 페이지네이션으로 가져오기
+        @Query("SELECT p.id FROM Post p WHERE p.boardType = :boardType ORDER BY p.id DESC")
+        Page<Long> findIdsByBoardType(@Param("boardType") BoardType boardType, Pageable pageable);
+
+        // 2단계: 해당 ID들로 태그 포함해서 가져오기
+        @Query("SELECT DISTINCT p FROM Post p " +
+                "LEFT JOIN FETCH p.tags pt " +
+                "LEFT JOIN FETCH pt.tag " +
+                "WHERE p.id IN :ids " +
+                "ORDER BY p.id DESC")
+        List<Post> findByIdsWithTags(@Param("ids") List<Long> ids);
+        Page<Post> findByBoardType(@Param("boardType") BoardType boardType, Pageable pageable);
 
         // 내가 작성한 글 목록
         List<Post> findByUserId(Long userId);

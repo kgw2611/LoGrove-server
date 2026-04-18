@@ -32,7 +32,7 @@ jwt:
 gemini:
   api:
     tag-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
-    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent
+    eval-url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent
 
 storage:
   upload-dir: ./uploads
