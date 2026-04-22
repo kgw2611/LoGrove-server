@@ -97,7 +97,7 @@ public class UserService {
     // 내가 작성한 게시글 목록 - /api/users/me/myposts
     @Transactional(readOnly = true)
     public List<PostListResponse> getMyPosts(Long userId) {
-        return postRepository.findByUserId(userId).stream()
+        return postRepository.findByUser_Id(userId).stream()
                 .map(PostListResponse::from)
                 .toList();
     }
