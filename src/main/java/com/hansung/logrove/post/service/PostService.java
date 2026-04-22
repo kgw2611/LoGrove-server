@@ -118,7 +118,7 @@ public class PostService {
 
     @Transactional
     public void likePost(Long userId, Long postId) {
-        if (postLikeRepository.existsByUserIdAndPostId(userId, postId)) {
+        if (postLikeRepository.existsByUser_IdAndPost_Id(userId, postId)) {
             throw new LoGroveException(ErrorCode.ALREADY_LIKED);
         }
         User user = userRepository.findById(userId)
@@ -129,7 +129,7 @@ public class PostService {
 
     @Transactional
     public void unlikePost(Long userId, Long postId) {
-        PostLike like = postLikeRepository.findByUserIdAndPostId(userId, postId)
+        PostLike like = postLikeRepository.findByUser_IdAndPost_Id(userId, postId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.LIKE_NOT_FOUND));
         postLikeRepository.delete(like);
     }

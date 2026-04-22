@@ -1,14 +1,14 @@
 package com.hansung.logrove.post.repository;
 
 import com.hansung.logrove.post.entity.PostTag;
+import com.hansung.logrove.post.entity.PostTagId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface PostTagRepository extends JpaRepository<PostTag, Long> {
+public interface PostTagRepository extends JpaRepository<PostTag, PostTagId> {
 
-    List<PostTag> findByPostId(Long postId);
+    List<PostTag> findByPost_Id(Long postId);
 
-    // 특정 태그가 달린 게시글 ID 목록 조회 — 태그 검색 기능에서 사용
-    List<PostTag> findByTagId(Long tagId);
+    List<PostTag> findByTag_Id(Long tagId);
 }
