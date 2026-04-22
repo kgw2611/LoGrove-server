@@ -27,7 +27,7 @@ public class PostTag {
 
     // 실제 태그명은 TAGNAME 테이블에서 관리
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "tac_id", nullable = false)
+    @JoinColumn(name = "tag_id", nullable = false)
     private Tag tag;
 
     public PostTag(Post post, Tag tag) {
