@@ -14,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(
-        name = "POSTS",
+        name = "posts",
         indexes = {
                 // 게시판별 최신글 조회가 가장 빈번 → 복합 인덱스
                 @Index(name = "idx_posts_board_created", columnList = "board_type, created_at")

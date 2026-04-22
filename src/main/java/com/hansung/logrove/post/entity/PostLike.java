@@ -10,7 +10,7 @@ import org.hibernate.annotations.OnDeleteAction;
 // 한 유저가 같은 게시글에 중복 좋아요 불가 → 복합 유니크 제약
 @Entity
 @Table(
-        name = "POST_LIKE",
+        name = "post_like",
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = {"user_id", "post_id"})
         }

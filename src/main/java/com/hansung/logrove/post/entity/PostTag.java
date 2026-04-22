@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
  * Vision API가 분석한 태그 또는 사용자가 직접 등록한 태그 모두 이 테이블에 저장됨.
  */
 @Entity
-@Table(name = "TAGS")
+@Table(name = "tags")
 @Getter
 @NoArgsConstructor
 public class PostTag {
