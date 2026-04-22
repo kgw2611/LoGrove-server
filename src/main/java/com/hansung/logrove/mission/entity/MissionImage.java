@@ -12,6 +12,7 @@ import lombok.*;
 public class MissionImage {
 
     @Id // 1. 부모(Mission)의 PK를 그대로 이어받습니다.
+    @Column(name = "mission_id")
     private Long id;
 
     @MapsId // 2. 핵심! Mission 엔티티의 ID를 내 PK로 사용하겠다는 선언입니다.
