@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "IMAGES")
+@Table(name = "images")
 @Getter
 @NoArgsConstructor
 public class PostImage {

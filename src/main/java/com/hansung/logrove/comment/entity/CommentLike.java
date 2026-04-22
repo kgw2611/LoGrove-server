@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(
-        name = "COMMENT_LIKE",
+        name = "comment_like",
         // 동일 유저가 같은 댓글에 중복 좋아요를 누르는 것을 DB 레벨에서 방지
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "comment_id"})
 )

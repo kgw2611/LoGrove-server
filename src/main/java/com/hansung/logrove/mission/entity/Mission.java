@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "MISSIONS") // 1. ERD에 명시된 테이블명 매핑
+@Table(name = "missions") // 1. ERD에 명시된 테이블명 매핑
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED) // 2. 무분별한 객체 생성 방지
 @AllArgsConstructor

@@ -11,7 +11,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "MISSIONS_IMAGE_RESULT")
+@Table(name = "missions_image_result")
 @EntityListeners(AuditingEntityListener.class) // 1. 생성 시간 자동 기록 설정
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

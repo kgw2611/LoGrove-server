@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "STAIR_MISSION") // DB 테이블명과 매핑
+@Table(name = "stair_mission") // DB 테이블명과 매핑
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
