@@ -16,8 +16,7 @@ import java.util.List;
 @Table(
         name = "posts",
         indexes = {
-                // 게시판별 최신글 조회가 가장 빈번 → 복합 인덱스
-                @Index(name = "idx_posts_board_created", columnList = "board_type, created_at")
+                @Index(name = "idx_posts_board_created", columnList = "board_id, created_at")
         }
 )
 @Getter
@@ -36,21 +35,20 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(name = "view", nullable = false)
     private int view = 0;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // EnumType.ORDINAL은 순서 변경 시 버그 위험 → STRING 사용
-    @Enumerated(EnumType.STRING)
-    @Column(name = "board_id", nullable = false, length = 20)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
     private BoardType boardType;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)

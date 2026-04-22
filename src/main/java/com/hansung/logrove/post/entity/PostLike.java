@@ -7,33 +7,28 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-// 한 유저가 같은 게시글에 중복 좋아요 불가 → 복합 유니크 제약
 @Entity
-@Table(
-        name = "post_like",
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"user_id", "post_id"})
-        }
-)
+@Table(name = "post_like")
 @Getter
 @NoArgsConstructor
 public class PostLike {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "like_id")
-    private Long id;
+    @EmbeddedId
+    private PostLikeId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("postId")
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
     public PostLike(User user, Post post) {
+        this.id = new PostLikeId(user.getId(), post.getId());
         this.user = user;
         this.post = post;
     }

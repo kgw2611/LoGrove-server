@@ -7,7 +7,6 @@ import com.hansung.logrove.post.dto.PostListResponse;
 import com.hansung.logrove.post.dto.PostResponse;
 import com.hansung.logrove.post.dto.PostUpdateRequest;
 import com.hansung.logrove.post.dto.*;
-import com.hansung.logrove.post.entity.BoardType;
 import com.hansung.logrove.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,7 +51,7 @@ public class PostController {
     @Operation(summary = "게시판별 목록 조회 / 검색 (제목, 태그, 복합)")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(
-            @RequestParam BoardType board,
+            @RequestParam String board,
             @RequestParam(required = false) String title,
             @RequestParam(required = false) List<Long> tagIds,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {

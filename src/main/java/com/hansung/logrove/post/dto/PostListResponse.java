@@ -1,6 +1,5 @@
 package com.hansung.logrove.post.dto;
 
-import com.hansung.logrove.post.entity.BoardType;
 import com.hansung.logrove.post.entity.Post;
 import lombok.Getter;
 
@@ -15,7 +14,7 @@ public class PostListResponse {
     private String title;
     private int view;
     private int likeCount;
-    private BoardType boardType;
+    private String boardType;
     private LocalDateTime createdAt;
     private String nickname;
     private List<String> tagNames;
@@ -27,7 +26,7 @@ public class PostListResponse {
         dto.title = post.getTitle();
         dto.view = post.getView();
         dto.likeCount = post.getLikes().size();
-        dto.boardType = post.getBoardType();
+        dto.boardType = post.getBoardType().getBoard();
         dto.createdAt = post.getCreatedAt();
         dto.nickname = post.getUser() != null ? post.getUser().getNickname() : null;
         dto.tagNames = post.getTags().stream()
