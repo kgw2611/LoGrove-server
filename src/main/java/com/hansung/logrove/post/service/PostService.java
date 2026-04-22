@@ -120,6 +120,11 @@ public class PostService {
         postLikeRepository.delete(like);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isLikedPost(Long userId, Long postId) {
+        return postLikeRepository.existsByUser_IdAndPost_Id(userId, postId);
+    }
+
     // ── 게시판 내 검색 ────────────────────────────────────────────
 
     @Transactional(readOnly = true)

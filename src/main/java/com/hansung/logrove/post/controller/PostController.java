@@ -97,4 +97,13 @@ public class PostController {
         postService.unlikePost(userId, postId);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
+
+    @Operation(summary = "게시글 좋아요 여부 조회")
+    @GetMapping("/{postId}/like")
+    public ResponseEntity<ApiResponse<Boolean>> isLikedPost(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long postId) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(postService.isLikedPost(userId, postId)));
+    }
 }
