@@ -12,12 +12,12 @@ public class Tag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "tac_id")
+    @Column(name = "tag_id")
     private Long id;
 
     // TagName ENUM을 문자열로 저장 (ex. "PORTRAIT", "LANDSCAPE")
     @Enumerated(EnumType.STRING)
-    @Column(name = "tac", nullable = false, unique = true)
+    @Column(name = "tag_name", nullable = false, unique = true)
     private TagName name;
 
     public Tag(TagName name) {
