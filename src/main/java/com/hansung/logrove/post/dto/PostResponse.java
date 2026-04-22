@@ -35,7 +35,7 @@ public class PostResponse {
                 .map(img -> img.getUrl())
                 .toList();
         dto.tagNames = post.getTags().stream()
-                .map(pt -> pt.getTag().getName().name())
+                .map(pt -> pt.getTag().getName())
                 .toList();
         dto.likeCount = post.getLikes().size();
         return dto;

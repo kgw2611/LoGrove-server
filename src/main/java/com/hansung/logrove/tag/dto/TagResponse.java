@@ -8,9 +8,9 @@ import lombok.Getter;
 public class TagResponse {
 
     private final Long id;
-    private final TagName name;
+    private final String name;
 
-    private TagResponse(Long id, TagName name) {
+    private TagResponse(Long id, String name) {
         this.id = id;
         this.name = name;
     }

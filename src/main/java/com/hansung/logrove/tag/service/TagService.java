@@ -26,7 +26,7 @@ public class TagService {
 
     // 태그명으로 조회, 없으면 새로 생성 — 추후 Gemini AI 연동 시 사용
     @Transactional
-    public Tag findOrCreate(TagName name) {
+    public Tag findOrCreate(String name) {
         return tagRepository.findByName(name)
                 .orElseGet(() -> tagRepository.save(new Tag(name)));
     }

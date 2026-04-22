@@ -30,7 +30,7 @@ public class PostListResponse {
         dto.createdAt = post.getCreatedAt();
         dto.nickname = post.getUser() != null ? post.getUser().getNickname() : null;
         dto.tagNames = post.getTags().stream()
-                .map(pt -> pt.getTag().getName().name())
+                .map(pt -> pt.getTag().getName())
                 .toList();
         dto.imageUrls = post.getImages().stream()
                 .map(img -> img.getUrl())
