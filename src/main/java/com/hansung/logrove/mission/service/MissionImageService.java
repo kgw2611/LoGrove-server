@@ -80,7 +80,7 @@ public class MissionImageService {
         System.out.println("url = " + uploadResult.getUrl());
 
         MissionResultStatus status = evaluation.isPassed()
-                ? MissionResultStatus.SUCCESS : MissionResultStatus.FAIL;
+                ? MissionResultStatus.PASS : MissionResultStatus.FAIL;
 
         // 4. 분석 결과 DB 저장
         MissionImageResult resultRecord = MissionImageResult.builder()
@@ -95,7 +95,7 @@ public class MissionImageService {
         System.out.println("4. result save success");
 
         // 5. 미션 성공 시 유저 상태 COMPLETED로 변경
-        if (status == MissionResultStatus.SUCCESS) {
+        if (status == MissionResultStatus.PASS) {
             updateUserMissionStatus(userId, missionId);
             System.out.println("5. mission state update success");
         }
