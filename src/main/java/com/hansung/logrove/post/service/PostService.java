@@ -57,7 +57,7 @@ public class PostService {
         if (images != null) {
             for (int i = 0; i < images.size(); i++) {
                 ImageUploadResult result = imageStorageService.storePostImage(post.getId(), images.get(i));
-                post.getImages().add(new PostImage(result.getUrl(), i, post));
+                post.getImages().add(new PostImage(result.getUrl(), i+1, post));
             }
         }
 
