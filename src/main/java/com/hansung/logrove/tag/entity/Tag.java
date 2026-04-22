@@ -17,9 +17,9 @@ public class Tag {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tag", nullable = false, unique = true)
-    private TagName name;
+    private String name;
 
-    public Tag(TagName name) {
+    public Tag(String name) {
         this.name = name;
     }
 }
