@@ -16,8 +16,7 @@ import java.util.List;
 @Table(
         name = "posts",
         indexes = {
-                // 게시판별 최신글 조회가 가장 빈번 → 복합 인덱스
-                @Index(name = "idx_posts_board_created", columnList = "board_type, created_at")
+                @Index(name = "idx_posts_board_created", columnList = "board_id, created_at")
         }
 )
 @Getter
@@ -43,9 +42,8 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    // EnumType.ORDINAL은 순서 변경 시 버그 위험 → STRING 사용
-    @Enumerated(EnumType.STRING)
-    @Column(name = "board_id", nullable = false, length = 20)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "board_id", nullable = false)
     private BoardType boardType;
 
     @ManyToOne(fetch = FetchType.LAZY)

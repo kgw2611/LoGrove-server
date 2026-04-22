@@ -19,7 +19,7 @@ public class User {
     @Column(name = "name", nullable = false, length = 20)
     private String name;
 
-    @Column(name = "nickname", nullable = false, length = 20)
+    @Column(name = "nickname", nullable = false, length = 40)
     private String nickname;
 
     @Column(name = "email", length = 100)
