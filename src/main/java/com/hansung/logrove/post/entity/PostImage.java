@@ -16,7 +16,7 @@ public class PostImage {
     private Long id;
 
     // 실제 파일은 S3 또는 로컬에 저장, DB에는 경로(URL)만 보관
-    @Column(name = "url", nullable = false, length = 500)
+    @Column(name = "image_url", nullable = false, length = 500)
     private String url;
 
     // 게시글 내 이미지 정렬 순서

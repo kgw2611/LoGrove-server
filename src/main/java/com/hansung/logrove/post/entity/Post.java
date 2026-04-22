@@ -36,7 +36,7 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "view", nullable = false)
+    @Column(name = "view_count", nullable = false)
     private int view = 0;
 
     @CreationTimestamp
@@ -45,7 +45,7 @@ public class Post {
 
     // EnumType.ORDINAL은 순서 변경 시 버그 위험 → STRING 사용
     @Enumerated(EnumType.STRING)
-    @Column(name = "board_type", nullable = false, length = 20)
+    @Column(name = "board_id", nullable = false, length = 20)
     private BoardType boardType;
 
     @ManyToOne(fetch = FetchType.LAZY)
