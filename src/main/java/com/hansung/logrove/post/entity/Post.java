@@ -35,7 +35,7 @@ public class Post {
     @Column(name = "content", nullable = false)
     private String content;
 
-    @Column(name = "view_count", nullable = false)
+    @Column(name = "view", nullable = false)
     private int view = 0;
 
     @CreationTimestamp
@@ -48,7 +48,7 @@ public class Post {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
