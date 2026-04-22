@@ -15,7 +15,6 @@ public class Tag {
     @Column(name = "tag_id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "tag", nullable = false, unique = true)
     private String name;
 
