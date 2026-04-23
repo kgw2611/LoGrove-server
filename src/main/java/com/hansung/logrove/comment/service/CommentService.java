@@ -31,21 +31,27 @@ public class CommentService {
     // ── 댓글 목록 조회 ──────────────────────────────────────────
     // 특정 게시글의 전체 댓글을 작성 시간 오름차순으로 반환
     @Transactional(readOnly = true)
-    public List<CommentResponse> getComments(Long postId) {
+    public List<CommentResponse> getComments(Long postId, Long userId) {
         // 게시글 존재 여부 먼저 확인
         validatePost(postId);
         return commentRepository.findByPost_IdOrderByCreatedAtAsc(postId)
                 .stream()
-                .map(CommentResponse::from)
+                .map(comment -> {
+                    boolean isLiked = userId != null &&
+                            commentLikeRepository.existsByUser_IdAndComment_Id(userId, comment.getId());
+                    return CommentResponse.from(comment, isLiked);
+                })
                 .collect(Collectors.toList());
     }
 
     // ── 댓글 단건 조회 ──────────────────────────────────────────
     @Transactional(readOnly = true)
-    public CommentResponse getComment(Long postId, Long commentId) {
+    public CommentResponse getComment(Long postId, Long commentId, Long userId) {
         validatePost(postId);
         Comment comment = findComment(commentId);
-        return CommentResponse.from(comment);
+        boolean isLiked = userId != null &&
+                commentLikeRepository.existsByUser_IdAndComment_Id(userId, comment.getId());
+        return CommentResponse.from(comment, isLiked);
     }
 
     // ── 댓글 작성 ───────────────────────────────────────────────
@@ -62,7 +68,7 @@ public class CommentService {
                 .user(user)
                 .build();
 
-        return CommentResponse.from(commentRepository.save(comment));
+        return CommentResponse.from(commentRepository.save(comment), false);
     }
 
     // ── 댓글 수정 ───────────────────────────────────────────────
@@ -75,7 +81,8 @@ public class CommentService {
 
         // 변경 감지(Dirty Checking)로 별도 save() 호출 없이 UPDATE 쿼리 실행
         comment.update(request.getContent());
-        return CommentResponse.from(comment);
+        boolean isLiked = commentLikeRepository.existsByUser_IdAndComment_Id(userId, commentId);
+        return CommentResponse.from(comment, isLiked);
     }
 
     // ── 댓글 삭제 ───────────────────────────────────────────────
@@ -143,7 +150,7 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> getMyComments(Long userId) {
         return commentRepository.findByUser_Id(userId).stream()
-                .map(CommentResponse::from)
+                .map(comment -> CommentResponse.from(comment, true))
                 .collect(Collectors.toList());
     }
 }

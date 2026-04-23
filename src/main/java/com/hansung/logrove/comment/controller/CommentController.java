@@ -26,16 +26,20 @@ public class CommentController {
     @Operation(summary = "댓글 목록 조회")
     @GetMapping
     public ResponseEntity<ApiResponse<List<CommentResponse>>> getComments(
-            @PathVariable Long postId) {
-        return ResponseEntity.ok(ApiResponse.ok(commentService.getComments(postId)));
+            @PathVariable Long postId,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        Long userId = token != null ? jwtUtil.extractUserId(token) : null;
+        return ResponseEntity.ok(ApiResponse.ok(commentService.getComments(postId, userId)));
     }
 
     @Operation(summary = "댓글 상세 조회")
     @GetMapping("/{commentId}")
     public ResponseEntity<ApiResponse<CommentResponse>> getComment(
             @PathVariable Long postId,
-            @PathVariable Long commentId) {
-        return ResponseEntity.ok(ApiResponse.ok(commentService.getComment(postId, commentId)));
+            @PathVariable Long commentId,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        Long userId = token != null ? jwtUtil.extractUserId(token) : null;
+        return ResponseEntity.ok(ApiResponse.ok(commentService.getComment(postId, commentId, userId)));
     }
 
     @Operation(summary = "댓글 작성")
