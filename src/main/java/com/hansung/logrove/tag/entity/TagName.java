@@ -1,5 +1,8 @@
 package com.hansung.logrove.tag.entity;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+
 public enum TagName {
 
     // 커뮤니티
@@ -48,15 +51,19 @@ public enum TagName {
         this.korean = korean;
     }
 
+    @JsonValue
     public String getKorean() {
         return korean;
     }
 
     /** 한글 태그명 → enum 변환. 매칭 없으면 null 반환 */
-    public static TagName fromKorean(String korean) {
+    @JsonCreator
+    public static TagName fromKorean(String value) {
         for (TagName tag : values()) {
-            if (tag.korean.equals(korean)) return tag;
+            if (tag.korean.equals(value) || tag.name().equals(value)) {
+                return tag;
+            }
         }
-        return null;
+        throw new IllegalArgumentException("Unknown tag: " + value);
     }
 }
