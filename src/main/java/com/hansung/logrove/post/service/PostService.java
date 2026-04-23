@@ -75,10 +75,11 @@ public class PostService {
     // ── 게시글 상세 조회 ──────────────────────────────────────
 
     @Transactional
-    public PostResponse getPost(Long postId) {
+    public PostResponse getPost(Long postId, Long userId) {
         Post post = findPost(postId);
         post.incrementView();
-        return PostResponse.from(post);
+        boolean isLiked = userId != null && postLikeRepository.existsByUser_IdAndPost_Id(userId, postId);
+        return PostResponse.from(post, isLiked);
     }
 
     // ── 게시글 수정 ──────────────────────────────────────────

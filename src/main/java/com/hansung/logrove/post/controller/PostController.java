@@ -44,8 +44,11 @@ public class PostController {
 
     @Operation(summary = "게시글 상세 조회")
     @GetMapping("/{postId}")
-    public ResponseEntity<ApiResponse<PostResponse>> getPost(@PathVariable Long postId) {
-        return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId)));
+    public ResponseEntity<ApiResponse<PostResponse>> getPost(
+            @PathVariable Long postId,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        Long userId = token != null ? jwtUtil.extractUserId(token) : null;
+        return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId, userId)));
     }
 
     @Operation(summary = "게시판별 목록 조회 / 검색 (제목, 태그, 복합)")
