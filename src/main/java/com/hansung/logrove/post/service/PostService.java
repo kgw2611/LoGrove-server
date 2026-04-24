@@ -126,6 +126,17 @@ public class PostService {
         return postLikeRepository.existsByUser_IdAndPost_Id(userId, postId);
     }
 
+    // ── 인기 게시글 조회 (조회수 내림차순 전체) ──────────────────────
+
+    @Transactional(readOnly = true)
+    public List<PostListResponse> getPopularPosts(String boardName) {
+        BoardType boardType = findBoardType(boardName);
+        return postRepository.findByBoardTypeOrderByViewDesc(boardType)
+                .stream()
+                .map(PostListResponse::from)
+                .toList();
+    }
+
     // ── 게시판 내 검색 ────────────────────────────────────────────
 
     @Transactional(readOnly = true)

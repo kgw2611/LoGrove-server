@@ -51,6 +51,13 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId, userId)));
     }
 
+    @Operation(summary = "인기 게시글 조회 (조회수 내림차순)")
+    @GetMapping("/popular")
+    public ResponseEntity<ApiResponse<List<PostListResponse>>> getPopularPosts(
+            @RequestParam String board) {
+        return ResponseEntity.ok(ApiResponse.ok(postService.getPopularPosts(board)));
+    }
+
     @Operation(summary = "게시판별 목록 조회 / 검색 (제목, 태그, 복합)")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(

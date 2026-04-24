@@ -24,6 +24,8 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByUser_Id(Long userId);
 
+    List<Post> findByBoardTypeOrderByViewDesc(BoardType boardType);
+
     Page<Post> findByBoardTypeAndTitleContaining(BoardType boardType, String title, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Post p JOIN PostTag pt ON pt.post = p WHERE p.boardType = :boardType AND pt.tag.id IN :tagIds")
