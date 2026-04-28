@@ -42,7 +42,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/api/auth/**",
                                 "/api/users",
-                                "/images/**"
+                                "/images/**",
+                                "/uploads/**"
                         ).permitAll()
                         // 게시글/댓글 조회는 비로그인도 허용
                         .requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll()
@@ -57,7 +58,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedOrigins(List.of("http://localhost:5173",
+                "http://3.38.12.226"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
