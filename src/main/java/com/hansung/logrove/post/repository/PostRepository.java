@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface PostRepository extends JpaRepository<Post, Long> {
@@ -24,7 +25,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByUser_Id(Long userId);
 
-    List<Post> findByBoardTypeOrderByViewDesc(BoardType boardType);
+    @Query("SELECT p FROM Post p WHERE p.boardType = :boardType ORDER BY p.view DESC")
+    List<Post> findPopularByBoardType(@Param("boardType") BoardType boardType);
+
+    @Query("SELECT p FROM Post p WHERE p.boardType = :boardType AND p.createdAt >= :cutoff ORDER BY p.view DESC")
+    List<Post> findPopularByBoardTypeAfter(@Param("boardType") BoardType boardType, @Param("cutoff") LocalDateTime cutoff);
 
     Page<Post> findByBoardTypeAndTitleContaining(BoardType boardType, String title, Pageable pageable);
 

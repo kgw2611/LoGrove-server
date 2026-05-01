@@ -17,8 +17,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -104,5 +106,14 @@ public class UserController {
             @RequestHeader("Authorization") String token) {
         Long userId = jwtUtil.extractUserId(token);
         return ResponseEntity.ok(ApiResponse.ok(userService.getGameProfile(userId)));
+    }
+
+    @Operation(summary = "프로필 이미지 변경")
+    @PutMapping(value = "/me/profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UserResponse>> updateProfileImage(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("image") MultipartFile image) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(userService.updateProfileImage(userId, image)));
     }
 }

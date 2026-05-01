@@ -17,6 +17,7 @@ public class UserResponse {
     private Integer exp;
     private Integer level;
     private Integer progress;
+    private String profileUrl;
 
     public static UserResponse from(User user) {
         return UserResponse.builder()
@@ -29,6 +30,7 @@ public class UserResponse {
                 .exp(user.getExp())
                 .level(user.getLevel())
                 .progress(user.getProgress())
+                .profileUrl(user.getProfileUrl())
                 .build();
     }
 }

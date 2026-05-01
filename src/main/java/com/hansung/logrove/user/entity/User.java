@@ -47,10 +47,17 @@ public class User {
     @Builder.Default
     private Integer progress = 0;
 
+    @Column(name = "profile_url", columnDefinition = "TEXT")
+    private String profileUrl;
+
     // 비즈니스 메서드
     public void updateProfile(String nickname, String email) {
         this.nickname = nickname;
         this.email = email;
+    }
+
+    public void updateProfileImage(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 
     public void addExp(int amount) {

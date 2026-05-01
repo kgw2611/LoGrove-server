@@ -4,6 +4,8 @@ import com.hansung.logrove.global.exception.ErrorCode;
 import com.hansung.logrove.global.exception.LoGroveException;
 import com.hansung.logrove.post.dto.PostListResponse;
 import com.hansung.logrove.post.repository.PostRepository;
+import com.hansung.logrove.storage.dto.ImageUploadResult;
+import com.hansung.logrove.storage.service.ImageStorageService;
 import com.hansung.logrove.user.dto.SignUpRequest;
 import com.hansung.logrove.user.dto.UserResponse;
 import com.hansung.logrove.user.dto.UserUpdateRequest;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -27,6 +30,7 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostRepository postRepository;
+    private final ImageStorageService imageStorageService;
 
     // 회원가입 - loginId/닉네임 중복 체크 후 BCrypt 인코딩하여 저장
     @Transactional
@@ -92,6 +96,16 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
         return GameProfileResponse.from(user);
+    }
+
+    // 프로필 이미지 변경
+    @Transactional
+    public UserResponse updateProfileImage(Long userId, MultipartFile file) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
+        ImageUploadResult result = imageStorageService.storeProfileImage(userId, file);
+        user.updateProfileImage(result.getUrl());
+        return UserResponse.from(user);
     }
 
     // 내가 작성한 게시글 목록 - /api/users/me/myposts

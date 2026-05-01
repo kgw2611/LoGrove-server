@@ -129,12 +129,12 @@ public class PostService {
     // ── 인기 게시글 조회 (조회수 내림차순 전체) ──────────────────────
 
     @Transactional(readOnly = true)
-    public List<PostListResponse> getPopularPosts(String boardName) {
+    public List<PostListResponse> getPopularPosts(String boardName, Integer days) {
         BoardType boardType = findBoardType(boardName);
-        return postRepository.findByBoardTypeOrderByViewDesc(boardType)
-                .stream()
-                .map(PostListResponse::from)
-                .toList();
+        List<Post> posts = (days != null)
+                ? postRepository.findPopularByBoardTypeAfter(boardType, java.time.LocalDateTime.now().minusDays(days))
+                : postRepository.findPopularByBoardType(boardType);
+        return posts.stream().map(PostListResponse::from).toList();
     }
 
     // ── 게시판 내 검색 ────────────────────────────────────────────
