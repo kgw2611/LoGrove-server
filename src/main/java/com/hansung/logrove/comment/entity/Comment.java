@@ -45,11 +45,21 @@ public class Comment {
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentLike> likes = new ArrayList<>();
 
+    // 대댓글 부모 참조 — null이면 일반 댓글, 값이 있으면 해당 댓글의 대댓글
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Comment parent;
+
+    // 대댓글 목록 — 부모 댓글 삭제 시 대댓글도 함께 삭제
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> replies = new ArrayList<>();
+
     @Builder
-    public Comment(String content, Post post, User user) {
+    public Comment(String content, Post post, User user, Comment parent) {
         this.content = content;
         this.post = post;
         this.user = user;
+        this.parent = parent;
     }
 
     // 댓글 수정 — 변경 감지(Dirty Checking)를 활용하기 위해 setter 대신 메서드로 제공

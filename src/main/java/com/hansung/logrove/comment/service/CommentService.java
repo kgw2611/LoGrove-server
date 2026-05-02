@@ -29,17 +29,23 @@ public class CommentService {
     private final UserRepository userRepository;
 
     // ── 댓글 목록 조회 ──────────────────────────────────────────
-    // 특정 게시글의 전체 댓글을 작성 시간 오름차순으로 반환
+    // 최상위 댓글만 조회하고, 각 댓글의 대댓글을 replies에 포함하여 반환
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId, Long userId) {
-        // 게시글 존재 여부 먼저 확인
         validatePost(postId);
-        return commentRepository.findByPost_IdOrderByCreatedAtAsc(postId)
+        return commentRepository.findByPost_IdAndParentIsNullOrderByCreatedAtAsc(postId)
                 .stream()
                 .map(comment -> {
                     boolean isLiked = userId != null &&
                             commentLikeRepository.existsByUser_IdAndComment_Id(userId, comment.getId());
-                    return CommentResponse.from(comment, isLiked);
+                    List<CommentResponse> replies = comment.getReplies().stream()
+                            .map(reply -> {
+                                boolean replyIsLiked = userId != null &&
+                                        commentLikeRepository.existsByUser_IdAndComment_Id(userId, reply.getId());
+                                return CommentResponse.from(reply, replyIsLiked);
+                            })
+                            .collect(Collectors.toList());
+                    return CommentResponse.from(comment, isLiked, replies);
                 })
                 .collect(Collectors.toList());
     }
@@ -62,10 +68,20 @@ public class CommentService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
 
+        Comment parent = null;
+        if (request.getParentId() != null) {
+            parent = findComment(request.getParentId());
+            // 대댓글의 대댓글 방지 (1단계까지만 허용)
+            if (parent.getParent() != null) {
+                throw new LoGroveException(ErrorCode.FORBIDDEN);
+            }
+        }
+
         Comment comment = Comment.builder()
                 .content(request.getContent())
                 .post(post)
                 .user(user)
+                .parent(parent)
                 .build();
 
         return CommentResponse.from(commentRepository.save(comment), false);
