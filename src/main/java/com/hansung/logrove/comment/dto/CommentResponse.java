@@ -16,9 +16,11 @@ public class CommentResponse {
     private Long parentId;
     private String content;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     private Long userId;
     private String nickname;
+    private String profileUrl;
 
     private int likeCount;
 
@@ -37,8 +39,10 @@ public class CommentResponse {
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
                 .userId(comment.getUser().getId())
                 .nickname(comment.getUser().getNickname())
+                .profileUrl(comment.getUser().getProfileUrl())
                 .likeCount(comment.getLikes().size())
                 .isLiked(isLiked)
                 .replies(replies)
