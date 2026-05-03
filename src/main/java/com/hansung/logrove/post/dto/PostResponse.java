@@ -16,6 +16,7 @@ public class PostResponse {
     private int view;
     private String boardType;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private Long userId;
     private String nickname;
     private List<String> imageUrls;
@@ -41,6 +42,7 @@ public class PostResponse {
         dto.view = post.getView();
         dto.boardType = post.getBoardType().getBoard();
         dto.createdAt = post.getCreatedAt();
+        dto.updatedAt = post.getUpdatedAt();
         dto.userId = post.getUser() != null ? post.getUser().getId() : null;
         dto.nickname = post.getUser() != null ? post.getUser().getNickname() : null;
         dto.imageUrls = post.getImages().stream()
@@ -50,6 +52,7 @@ public class PostResponse {
                 .map(pt -> pt.getTag().getName())
                 .toList();
         dto.likeCount = post.getLikes().size();
+        dto.profileUrl = post.getUser() != null ? post.getUser().getProfileUrl() : null;
         dto.isLiked = isLiked;
         return dto;
     }

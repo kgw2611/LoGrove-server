@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
@@ -26,9 +27,13 @@ public class Comment {
     @Column(nullable = false, columnDefinition = "TEXT") // 댓글 본문 (길이 제한 없이 TEXT 타입)
     private String content;
 
-    @CreationTimestamp // INSERT 시점에 자동으로 현재 시각 주입
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     // 댓글은 반드시 하나의 게시글에 속함 (N:1)
     @ManyToOne(fetch = FetchType.LAZY)
