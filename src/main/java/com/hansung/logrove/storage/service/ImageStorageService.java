@@ -27,6 +27,10 @@ public class ImageStorageService {
         return storageProvider.store(file, "submissions/" + userId);
     }
 
+    public ImageUploadResult storeProfileImage(Long userId, MultipartFile file) {
+        return storageProvider.store(file, "profiles/" + userId);
+    }
+
     public void delete(String filePath) {
         storageProvider.delete(filePath);
     }

@@ -21,6 +21,7 @@ public class PostResponse {
     private List<String> imageUrls;
     private List<String> tagNames;
     private int likeCount;
+    private String profileUrl;
 
     // @JsonProperty 없으면 Lombok이 isLiked() getter를 만들어 Jackson이 "liked"로 직렬화함
     @JsonProperty("isLiked")
