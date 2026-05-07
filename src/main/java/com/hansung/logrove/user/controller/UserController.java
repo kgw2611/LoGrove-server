@@ -5,6 +5,7 @@ import com.hansung.logrove.comment.service.CommentService;
 import com.hansung.logrove.global.jwt.JwtUtil;
 import com.hansung.logrove.global.response.ApiResponse;
 import com.hansung.logrove.post.dto.PostListResponse;
+import com.hansung.logrove.user.dto.MyGalleryImageResponse;
 import com.hansung.logrove.user.dto.SignUpRequest;
 import com.hansung.logrove.user.dto.UserResponse;
 import com.hansung.logrove.user.dto.UserUpdateRequest;
@@ -115,5 +116,13 @@ public class UserController {
             @RequestParam("image") MultipartFile image) {
         Long userId = jwtUtil.extractUserId(token);
         return ResponseEntity.ok(ApiResponse.ok(userService.updateProfileImage(userId, image)));
+    }
+
+    @Operation(summary = "나의 갤러리")
+    @GetMapping("/me/mygallery")
+    public ResponseEntity<ApiResponse<List<MyGalleryImageResponse>>> getMyGallery(
+            @RequestHeader("Authorization") String token) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(userService.getMyGallery(userId)));
     }
 }

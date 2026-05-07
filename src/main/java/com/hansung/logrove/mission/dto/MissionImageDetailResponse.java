@@ -20,7 +20,7 @@ public class MissionImageDetailResponse {
                 .theme(missionImage.getTheme())
                 .content(missionImage.getContent())
                 .guide(missionImage.getGuide())
-                .sampleUrl(missionImage.getSampleUrl())
+                .sampleUrl(MissionResponse.resolveSampleUrl(missionImage.getTheme(), missionImage.getSampleUrl()))
                 .passScore(missionImage.getPassScore())
                 .build();
     }

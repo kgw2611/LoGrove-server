@@ -21,18 +21,28 @@ public class MissionService {
     private final MissionStateRepository missionStateRepository;
     private final MissionImageResultRepository missionImageResultRepository;
 
+    // 각 카테고리의 첫 번째 미션 ID (가입 즉시 접근 가능)
+    private static final java.util.Set<Long> STARTING_MISSIONS = java.util.Set.of(1L, 10L, 19L, 28L);
+
     /**
      * [단계별 학습 리스트 조회]
      */
     public List<MissionResponse> getStairMissionList(Long userId) {
         List<Mission> missions = missionRepository.findAll();
 
+        // N+1 방지: 유저의 모든 상태를 1번 쿼리로 로드
+        java.util.Map<Long, String> stateMap = missionStateRepository.findByUserIdWithMission(userId).stream()
+                .collect(Collectors.toMap(
+                        ms -> ms.getMission().getId(),
+                        ms -> ms.getState().name()
+                ));
+
         return missions.stream()
                 .filter(mission -> mission.getMissionStair() != null)
                 .map(mission -> {
-                    String state = missionStateRepository.findByUserIdAndMissionId(userId, mission.getId())
-                            .map(s -> s.getState().name())
-                            .orElse("INCOMPLETE");
+                    String state = stateMap.containsKey(mission.getId())
+                            ? stateMap.get(mission.getId())
+                            : (STARTING_MISSIONS.contains(mission.getId()) ? "INCOMPLETE" : "LOCKED");
 
                     return new MissionResponse(
                             mission.getId(),
@@ -40,7 +50,9 @@ public class MissionService {
                             mission.getMissionStair().getStep() + "단계",
                             mission.getMissionStair().getLevel().ordinal(),
                             state,
-                            mission.getMissionStair().getType() // MULTIPLE_CHOICE or SHORT_ANSWER
+                            mission.getMissionStair().getType(),
+                            null,
+                            mission.getPoint()
                     );
                 })
                 .collect(Collectors.toList());
@@ -58,17 +70,26 @@ public class MissionService {
                     String state = missionStateRepository.findByUserIdAndMissionId(userId, mission.getId())
                             .map(s -> s.getState().name())
                             .orElse("INCOMPLETE");
+                    String theme = mission.getMissionImage().getTheme();
 
                     return new MissionResponse(
                             mission.getId(),
-                            mission.getMissionImage().getTheme(),
+                            mission.getQuestion(),
                             mission.getMissionImage().getContent(),
-                            0,
+                            photoLevel(mission.getPoint()),
                             state,
-                            null // 사진 미션은 StairType 없음
+                            null,
+                            MissionResponse.resolveSampleUrl(theme, mission.getMissionImage().getSampleUrl()),
+                            mission.getPoint()
                     );
                 })
                 .collect(Collectors.toList());
+    }
+
+    private static int photoLevel(int point) {
+        if (point >= 500) return 2;
+        if (point >= 300) return 1;
+        return 0;
     }
 
     // 완료 미션 목록 조회 - /api/users/me/missionlist

@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
@@ -43,7 +42,6 @@ public class Post {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -75,6 +73,7 @@ public class Post {
     public void update(String title, String content) {
         this.title = title;
         this.content = content;
+        this.updatedAt = LocalDateTime.now();
     }
 
     public void incrementView() {

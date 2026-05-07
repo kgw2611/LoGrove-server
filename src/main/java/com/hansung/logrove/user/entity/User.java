@@ -43,17 +43,17 @@ public class User {
     @Builder.Default
     private Integer level = 1;
 
-    @Column(name = "progress", nullable = false)
-    @Builder.Default
-    private Integer progress = 0;
+    @Column(name = "bio", length = 255)
+    private String bio;
 
     @Column(name = "profile_url", columnDefinition = "TEXT")
     private String profileUrl;
 
     // 비즈니스 메서드
-    public void updateProfile(String nickname, String email) {
-        this.nickname = nickname;
-        this.email = email;
+    public void updateProfile(String nickname, String email, String bio) {
+        if (nickname != null && !nickname.isBlank()) this.nickname = nickname;
+        if (email != null) this.email = email;
+        if (bio != null) this.bio = bio;
     }
 
     public void updateProfileImage(String profileUrl) {
@@ -62,5 +62,9 @@ public class User {
 
     public void addExp(int amount) {
         this.exp += amount;
+    }
+
+    public void updateLevel(int level) {
+        this.level = level;
     }
 }

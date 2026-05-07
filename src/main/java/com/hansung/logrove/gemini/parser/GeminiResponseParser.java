@@ -46,13 +46,13 @@ public class GeminiResponseParser {
             JsonNode node = objectMapper.readTree(json);
 
             int score = node.get("score").asInt();
-            String reason = node.get("reason").asText(); // 프롬프트 필드명과 일치
+            String reason = node.get("reason").asText();
             boolean passed = score >= passScore;
 
             return new GeminiEvaluationResponse(score, passed, reason);
 
         } catch (Exception e) {
-            throw new RuntimeException("Gemini 채점 응답 파싱 실패: " + e.getMessage());
+            return new GeminiEvaluationResponse(0, false, "사진이 주제와 관련 없거나 분석할 수 없습니다.");
         }
     }
 

@@ -5,10 +5,13 @@ import com.hansung.logrove.mission.dto.MissionSubmitRequest;
 import com.hansung.logrove.mission.entity.*;
 import com.hansung.logrove.mission.repository.MissionStairContentRepository;
 import com.hansung.logrove.mission.repository.MissionStateRepository;
+import com.hansung.logrove.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -16,6 +19,7 @@ public class MissionStairService {
 
     private final MissionStairContentRepository contentRepository;
     private final MissionStateRepository missionStateRepository;
+    private final UserService userService;
 
     /**
      * 상세 퀴즈 데이터 조회 (DTO 변환)
@@ -48,16 +52,38 @@ public class MissionStairService {
         // DB 정답과 유저 제출 답안 비교 (공백 제거 및 대소문자 무시)
         boolean isCorrect = content.getAnswer().trim().equalsIgnoreCase(request.getSubmittedAnswer().trim());
 
-        // 정답이면 미션 상태를 COMPLETED로 변경
+        try {
+            if (isCorrect) {
+                missionStateRepository.upsertCompleted(missionId, userId);
+                unlockNextMission(missionId, userId);
+            } else {
+                missionStateRepository.insertIncompleteIfAbsent(missionId, userId);
+            }
+        } catch (Exception e) {
+            log.error("mission_state 저장 실패 missionId={} userId={}", missionId, userId, e);
+        }
+
         if (isCorrect) {
-            updateMissionStatus(userId, missionId);
+            try {
+                int point = content.getMissionStair().getMission().getPoint();
+                userService.addExp(userId, point);
+            } catch (Exception e) {
+                log.error("경험치 지급 실패 missionId={} userId={}", missionId, userId, e);
+            }
         }
 
         return isCorrect;
     }
 
-    private void updateMissionStatus(Long userId, Long missionId) {
-        missionStateRepository.findByUserIdAndMissionId(userId, missionId)
-                .ifPresent(state -> state.updateStatus(MissionStatus.COMPLETED));
+    // 카테고리 마지막 미션: 9, 18, 27, 36 → 다음 언락 없음
+    private static final java.util.Set<Long> CATEGORY_LAST = java.util.Set.of(9L, 18L, 27L, 36L);
+
+    private void unlockNextMission(Long missionId, Long userId) {
+        if (CATEGORY_LAST.contains(missionId)) return;
+        try {
+            missionStateRepository.insertIncompleteIfAbsent(missionId + 1, userId);
+        } catch (Exception e) {
+            log.error("다음 미션 언락 실패 nextMissionId={} userId={}", missionId + 1, userId, e);
+        }
     }
 }

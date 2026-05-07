@@ -2,8 +2,13 @@ package com.hansung.logrove.user.service;
 
 import com.hansung.logrove.global.exception.ErrorCode;
 import com.hansung.logrove.global.exception.LoGroveException;
+import com.hansung.logrove.mission.entity.MissionImageResult;
+import com.hansung.logrove.mission.repository.MissionImageResultRepository;
 import com.hansung.logrove.post.dto.PostListResponse;
+import com.hansung.logrove.post.entity.PostImage;
+import com.hansung.logrove.post.repository.PostImageRepository;
 import com.hansung.logrove.post.repository.PostRepository;
+import com.hansung.logrove.user.dto.MyGalleryImageResponse;
 import com.hansung.logrove.storage.dto.ImageUploadResult;
 import com.hansung.logrove.storage.service.ImageStorageService;
 import com.hansung.logrove.user.dto.SignUpRequest;
@@ -17,6 +22,7 @@ import com.hansung.logrove.user.dto.GameProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,10 +32,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final int[] LEVEL_THRESHOLDS = {0, 500, 1500, 3000, 5500, 9000, 13300};
+
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
     private final PostRepository postRepository;
+    private final PostImageRepository postImageRepository;
+    private final MissionImageResultRepository missionImageResultRepository;
     private final ImageStorageService imageStorageService;
 
     // 회원가입 - loginId/닉네임 중복 체크 후 BCrypt 인코딩하여 저장
@@ -59,6 +69,22 @@ public class UserService {
         return UserResponse.from(userRepository.save(user));
     }
 
+    // 경험치 추가 및 레벨업 처리 — REQUIRES_NEW로 호출자 트랜잭션과 분리
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void addExp(Long userId, int gained) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
+        user.addExp(gained);
+        user.updateLevel(calcLevel(user.getExp()));
+    }
+
+    private int calcLevel(int totalExp) {
+        for (int i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+            if (totalExp >= LEVEL_THRESHOLDS[i]) return i + 1;
+        }
+        return 1;
+    }
+
     // 마이페이지 조회
     @Transactional(readOnly = true)
     public UserResponse getMyInfo(Long userId) {
@@ -73,12 +99,14 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
 
-        if (!user.getNickname().equals(request.getNickname()) &&
-                userRepository.existsByNickname(request.getNickname())) {
+        String newNickname = request.getNickname();
+        if (newNickname != null && !newNickname.isBlank() &&
+                !user.getNickname().equals(newNickname) &&
+                userRepository.existsByNickname(newNickname)) {
             throw new LoGroveException(ErrorCode.DUPLICATE_NICKNAME);
         }
 
-        user.updateProfile(request.getNickname(), request.getEmail());
+        user.updateProfile(request.getNickname(), request.getEmail(), request.getBio());
         return UserResponse.from(user);
     }
 
@@ -114,5 +142,30 @@ public class UserService {
         return postRepository.findByUser_Id(userId).stream()
                 .map(PostListResponse::from)
                 .toList();
+    }
+
+    // 나의 갤러리 - 갤러리 게시글 이미지 + 미션 제출 이미지
+    @Transactional(readOnly = true)
+    public List<MyGalleryImageResponse> getMyGallery(Long userId) {
+        List<MyGalleryImageResponse> result = new java.util.ArrayList<>();
+
+        postImageRepository.findByPostUserIdAndPostBoardTypeBoard(userId, "GALLERY").stream()
+                .map(img -> new MyGalleryImageResponse(
+                        img.getId(), img.getUrl(), "gallery",
+                        img.getPost().getTitle(), img.getPost().getCreatedAt(), img.getPost().getId()))
+                .forEach(result::add);
+
+        missionImageResultRepository.findByUserId(userId).stream()
+                .filter(r -> r.getResultUrl() != null)
+                .map(r -> new MyGalleryImageResponse(
+                        r.getId(), r.getResultUrl(), "mission",
+                        r.getMission().getMissionImage().getTheme(), r.getSubmittedAt(), r.getId()))
+                .forEach(result::add);
+
+        result.sort(java.util.Comparator.comparing(
+                MyGalleryImageResponse::getCreatedAt,
+                java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
+
+        return result;
     }
 }

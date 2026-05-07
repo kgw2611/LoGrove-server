@@ -12,6 +12,7 @@ import com.hansung.logrove.storage.dto.ImageUploadResult;
 import com.hansung.logrove.storage.service.ImageStorageService;
 import com.hansung.logrove.user.entity.User;
 import com.hansung.logrove.user.repository.UserRepository;
+import com.hansung.logrove.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class MissionImageService {
     private final MissionImageResultRepository missionImageResultRepository;
     private final MissionStateRepository missionStateRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
     private final ImageEvaluationService imageEvaluationService;
     private final ImageStorageService imageStorageService;
 
@@ -94,13 +96,24 @@ public class MissionImageService {
         missionImageResultRepository.save(resultRecord);
         System.out.println("4. result save success");
 
-        // 5. 미션 성공 시 유저 상태 COMPLETED로 변경
+        // 5. 미션 상태 저장
         if (status == MissionResultStatus.PASS) {
-            updateUserMissionStatus(userId, missionId);
+            missionStateRepository.upsertCompleted(missionId, userId);
             System.out.println("5. mission state update success");
+        } else {
+            missionStateRepository.insertIncompleteIfAbsent(missionId, userId);
         }
 
-        // 6. 결과 반환
+        // 6. 경험치 지급 (상태 저장과 분리 — 실패해도 채점 결과에 영향 없음)
+        if (status == MissionResultStatus.PASS) {
+            try {
+                userService.addExp(userId, missionImage.getMission().getPoint());
+            } catch (Exception e) {
+                System.out.println("경험치 지급 실패 (무시): " + e.getMessage());
+            }
+        }
+
+        // 7. 결과 반환
         return MissionResultResponse.builder()
                 .score(evaluation.getScore())
                 .feedback(evaluation.getFeedback())
@@ -108,8 +121,4 @@ public class MissionImageService {
                 .build();
     }
 
-    private void updateUserMissionStatus(Long userId, Long missionId) {
-        missionStateRepository.findByUserIdAndMissionId(userId, missionId)
-                .ifPresent(state -> state.updateStatus(MissionStatus.COMPLETED));
-    }
 }
