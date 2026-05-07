@@ -9,9 +9,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserUpdateRequest {
 
-    @NotBlank(message = "닉네임은 필수입니다.")
     private String nickname;
 
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     private String email;
+
+    private String bio;
 }

@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
@@ -31,7 +30,6 @@ public class Comment {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
@@ -70,5 +68,6 @@ public class Comment {
     // 댓글 수정 — 변경 감지(Dirty Checking)를 활용하기 위해 setter 대신 메서드로 제공
     public void update(String content) {
         this.content = content;
+        this.updatedAt = java.time.LocalDateTime.now();
     }
 }

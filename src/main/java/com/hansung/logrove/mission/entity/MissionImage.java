@@ -43,4 +43,8 @@ public class MissionImage {
         this.guide = guide;
         this.passScore = passScore;
     }
+
+    public void updateSampleUrl(String sampleUrl) {
+        this.sampleUrl = sampleUrl;
+    }
 }

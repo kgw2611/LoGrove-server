@@ -24,12 +24,7 @@ public class LocalFileStorageProvider {
             Files.createDirectories(dirPath);
 
             // 원본 확장자 유지하며 UUID로 파일명 생성 (충돌 방지)
-            String originalFilename = file.getOriginalFilename();
-            String extension = "";
-            if (originalFilename != null && originalFilename.contains(".")) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            }
-            String savedFilename = UUID.randomUUID() + extension;
+            String savedFilename = UUID.randomUUID() + extractExtension(file);
 
             // 실제 파일 저장
             Path filePath = dirPath.resolve(savedFilename);
@@ -52,5 +47,13 @@ public class LocalFileStorageProvider {
         } catch (IOException e) {
             throw new RuntimeException("파일 삭제 실패: " + e.getMessage());
         }
+    }
+
+    private String extractExtension(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains(".")) {
+            return originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        return "";
     }
 }

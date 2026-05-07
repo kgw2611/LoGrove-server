@@ -18,6 +18,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${storage.upload-dir}")
     private String uploadDir;
 
+    @Value("${storage.image-dir:./images}")
+    private String imageDir;
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
@@ -27,12 +30,16 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowCredentials(true);
     }
 
-    // /images/** 요청을 업로드 폴더의 실제 파일로 매핑
+    // /images/** 요청을 서버 이미지 폴더와 업로드 폴더의 실제 파일로 매핑
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        Path imagePath = Paths.get(imageDir).toAbsolutePath();
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath();
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadPath + "/");
+                .addResourceLocations(
+                        "file:" + imagePath + "/",
+                        "file:" + uploadPath + "/"
+                );
     }
 
     @Bean
