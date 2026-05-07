@@ -22,12 +22,14 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            pkill -f 'gradle-wrapper.jar bootRun' || true
-            pkill -f 'GradleDaemon' || true
-            pkill -f 'com.hansung.logrove.LogroveApplication' || true
+            PID=$(lsof -ti:8080 || true)
+            if [ -n "$PID" ]; then
+              kill -9 $PID
+            fi
 
             chmod +x gradlew
+
             nohup ./gradlew clean bootRun --no-daemon > boot.log 2>&1 &
 
-            sleep 10
-            tail -n 80 boot.log
+            sleep 15
+            tail -n 100 boot.log
