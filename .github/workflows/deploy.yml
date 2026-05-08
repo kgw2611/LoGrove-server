@@ -22,14 +22,17 @@ jobs:
             git fetch origin
             git reset --hard origin/main
 
-            PID=$(lsof -ti:8080 || true)
+            PID=$(sudo lsof -ti:8080 || true)
             if [ -n "$PID" ]; then
-              kill -9 $PID
+              sudo kill -9 $PID
             fi
 
             chmod +x gradlew
 
-            nohup ./gradlew clean bootRun --no-daemon > boot.log 2>&1 &
+            rm -f boot.log
+            nohup ./gradlew clean bootRun --no-daemon > boot.log 2>&1 < /dev/null &
 
-            sleep 15
+            sleep 20
             tail -n 100 boot.log
+
+            curl -f "http://localhost:8080/api/posts?board=COMMUNITY&page=0&size=1"
