@@ -47,7 +47,7 @@ public class MissionService {
                     return new MissionResponse(
                             mission.getId(),
                             mission.getQuestion(),
-                            mission.getMissionStair().getStep() + "단계",
+                            null,
                             mission.getMissionStair().getLevel().ordinal(),
                             state,
                             mission.getMissionStair().getType(),

@@ -51,6 +51,10 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.7'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.7'
 
+	// Image processing
+	implementation 'net.coobird:thumbnailator:0.4.20'
+	implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'

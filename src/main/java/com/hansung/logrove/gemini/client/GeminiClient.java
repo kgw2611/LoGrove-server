@@ -1,5 +1,6 @@
 package com.hansung.logrove.gemini.client;
 
+import com.hansung.logrove.storage.util.ImageConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class GeminiClient {
 
     private final RestTemplate restTemplate;
+    private final ImageConverter imageConverter;
 
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -39,9 +41,9 @@ public class GeminiClient {
 
     private String call(String url, MultipartFile file, String prompt) {
         try {
-            String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
-            String rawMime = file.getContentType() != null ? file.getContentType() : "image/jpeg";
-            String mimeType = rawMime.equalsIgnoreCase("image/jpg") ? "image/jpeg" : rawMime;
+            byte[] webpBytes = imageConverter.toWebP(file.getBytes(), 1024);
+            String base64Image = Base64.getEncoder().encodeToString(webpBytes);
+            String mimeType = "image/webp";
 
             // Gemini API 요청 바디 구성
             Map<String, Object> imagePart = Map.of(

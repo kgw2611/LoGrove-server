@@ -54,22 +54,27 @@ public class MissionStairService {
 
         try {
             if (isCorrect) {
+                boolean alreadyCompleted = missionStateRepository
+                        .findByUserIdAndMissionId(userId, missionId)
+                        .map(s -> s.getState() == com.hansung.logrove.mission.entity.MissionStatus.COMPLETED)
+                        .orElse(false);
+
                 missionStateRepository.upsertCompleted(missionId, userId);
                 unlockNextMission(missionId, userId);
+
+                if (!alreadyCompleted) {
+                    try {
+                        int point = content.getMissionStair().getMission().getPoint();
+                        userService.addExp(userId, point);
+                    } catch (Exception e) {
+                        log.error("경험치 지급 실패 missionId={} userId={}", missionId, userId, e);
+                    }
+                }
             } else {
                 missionStateRepository.insertIncompleteIfAbsent(missionId, userId);
             }
         } catch (Exception e) {
             log.error("mission_state 저장 실패 missionId={} userId={}", missionId, userId, e);
-        }
-
-        if (isCorrect) {
-            try {
-                int point = content.getMissionStair().getMission().getPoint();
-                userService.addExp(userId, point);
-            } catch (Exception e) {
-                log.error("경험치 지급 실패 missionId={} userId={}", missionId, userId, e);
-            }
         }
 
         return isCorrect;
