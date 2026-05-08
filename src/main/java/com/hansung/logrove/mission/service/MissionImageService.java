@@ -14,6 +14,7 @@ import com.hansung.logrove.user.entity.User;
 import com.hansung.logrove.user.repository.UserRepository;
 import com.hansung.logrove.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 /**
  * [설계도 명칭 준수] 사진 제출형 학습(MissionImage)의 비즈니스 로직 및 Gemini AI 분석을 담당합니다.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -96,21 +98,24 @@ public class MissionImageService {
         missionImageResultRepository.save(resultRecord);
         System.out.println("4. result save success");
 
-        // 5. 미션 상태 저장
+        // 5. 미션 상태 저장 및 경험치 지급
         if (status == MissionResultStatus.PASS) {
+            boolean alreadyCompleted = missionStateRepository
+                    .findByUserIdAndMissionId(userId, missionId)
+                    .map(s -> s.getState() == com.hansung.logrove.mission.entity.MissionStatus.COMPLETED)
+                    .orElse(false);
+
             missionStateRepository.upsertCompleted(missionId, userId);
-            System.out.println("5. mission state update success");
+
+            if (!alreadyCompleted) {
+                try {
+                    userService.addExp(userId, missionImage.getMission().getPoint());
+                } catch (Exception e) {
+                    log.error("경험치 지급 실패 missionId={} userId={}", missionId, userId, e);
+                }
+            }
         } else {
             missionStateRepository.insertIncompleteIfAbsent(missionId, userId);
-        }
-
-        // 6. 경험치 지급 (상태 저장과 분리 — 실패해도 채점 결과에 영향 없음)
-        if (status == MissionResultStatus.PASS) {
-            try {
-                userService.addExp(userId, missionImage.getMission().getPoint());
-            } catch (Exception e) {
-                System.out.println("경험치 지급 실패 (무시): " + e.getMessage());
-            }
         }
 
         // 7. 결과 반환

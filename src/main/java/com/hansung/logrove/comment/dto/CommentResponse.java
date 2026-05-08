@@ -13,6 +13,8 @@ import java.util.List;
 public class CommentResponse {
 
     private Long commentId;
+    private Long postId;
+    private String boardType;
     private Long parentId;
     private String content;
     private LocalDateTime createdAt;
@@ -36,6 +38,8 @@ public class CommentResponse {
     public static CommentResponse from(Comment comment, boolean isLiked, List<CommentResponse> replies) {
         return CommentResponse.builder()
                 .commentId(comment.getId())
+                .postId(comment.getPost().getId())
+                .boardType(comment.getPost().getBoardType().getBoard())
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())

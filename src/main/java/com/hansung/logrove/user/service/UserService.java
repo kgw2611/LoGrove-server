@@ -22,7 +22,6 @@ import com.hansung.logrove.user.dto.GameProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -69,8 +68,7 @@ public class UserService {
         return UserResponse.from(userRepository.save(user));
     }
 
-    // 경험치 추가 및 레벨업 처리 — REQUIRES_NEW로 호출자 트랜잭션과 분리
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void addExp(Long userId, int gained) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));

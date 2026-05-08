@@ -21,20 +21,15 @@ public class MissionStair {
     private Mission mission;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type", nullable = false) // 2. 객관식 또는 주관식 퀴즈
+    @Column(name = "type", nullable = false)
     private StairType type;
 
-    @Column(name = "step", nullable = false) // 3. 진행 순서 (1단계, 2단계...)
-    private Integer step;
-
     @Enumerated(EnumType.STRING)
-    @Column(name = "level", nullable = false) // 4. 난이도 (EASY, NORMAL, HARD)
+    @Column(name = "level", nullable = false)
     private MissionLevel level;
 
-    // 비즈니스 로직: 퀴즈 설정 변경 시 사용
-    public void updateStair(StairType type, Integer step, MissionLevel level) {
+    public void updateStair(StairType type, MissionLevel level) {
         this.type = type;
-        this.step = step;
         this.level = level;
     }
 }
