@@ -32,7 +32,19 @@ jobs:
             rm -f boot.log
             nohup ./gradlew clean bootRun --no-daemon > boot.log 2>&1 < /dev/null &
 
-            sleep 20
-            tail -n 100 boot.log
+            echo "Waiting for backend to start..."
 
-            curl -f "http://localhost:8080/api/posts?board=COMMUNITY&page=0&size=1"
+            for i in {1..30}; do
+              if curl -s "http://localhost:8080/api/posts?board=COMMUNITY&page=0&size=1" > /dev/null; then
+                echo "Backend started successfully"
+                tail -n 100 boot.log
+                exit 0
+              fi
+
+              echo "Backend not ready yet... retry $i"
+              sleep 3
+            done
+
+            echo "Backend failed to start within timeout"
+            tail -n 200 boot.log
+            exit 1
