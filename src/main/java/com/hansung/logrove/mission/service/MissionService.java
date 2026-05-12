@@ -47,6 +47,7 @@ public class MissionService {
                     return new MissionResponse(
                             mission.getId(),
                             mission.getQuestion(),
+                            mission.getMissionStair().getStairTitle(),
                             null,
                             mission.getMissionStair().getLevel().ordinal(),
                             state,
@@ -75,6 +76,7 @@ public class MissionService {
                     return new MissionResponse(
                             mission.getId(),
                             mission.getQuestion(),
+                            null,
                             mission.getMissionImage().getContent(),
                             photoLevel(mission.getPoint()),
                             state,

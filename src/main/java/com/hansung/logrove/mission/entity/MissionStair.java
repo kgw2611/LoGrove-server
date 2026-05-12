@@ -15,6 +15,9 @@ public class MissionStair {
     @Column(name = "mission_id") // 1. 식별 관계: Mission의 PK를 그대로 사용
     private Long id;
 
+    @Column(name = "stair_title", nullable = false)
+    private String stairTitle;
+
     @MapsId
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mission_id")
