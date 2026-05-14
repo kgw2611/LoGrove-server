@@ -1,38 +1,48 @@
 package com.hansung.logrove.post.controller;
 
-import com.hansung.logrove.global.response.ApiResponse;
 import com.hansung.logrove.global.jwt.JwtUtil;
+import com.hansung.logrove.global.response.ApiResponse;
 import com.hansung.logrove.post.dto.PostCreateRequest;
 import com.hansung.logrove.post.dto.PostListResponse;
 import com.hansung.logrove.post.dto.PostResponse;
 import com.hansung.logrove.post.dto.PostUpdateRequest;
-import com.hansung.logrove.post.dto.*;
 import com.hansung.logrove.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springdoc.core.annotations.ParameterObject;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
-@Tag(name = "Post", description = "게시글 API")
+@Tag(name = "Post", description = "Post API")
 public class PostController {
 
     private final PostService postService;
     private final JwtUtil jwtUtil;
 
-    @Operation(summary = "게시글 작성")
+    @Operation(summary = "Create post multipart")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<PostResponse>> createPost(
             @RequestHeader("Authorization") String token,
@@ -42,7 +52,26 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.createPost(userId, request, images)));
     }
 
-    @Operation(summary = "게시글 상세 조회")
+    @Operation(summary = "Create post JSON")
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<PostResponse>> createPostJson(
+            @RequestHeader("Authorization") String token,
+            @Valid @RequestBody PostCreateRequest request) {
+        Long userId = jwtUtil.extractUserId(token);
+        return ResponseEntity.ok(ApiResponse.ok(postService.createPost(userId, request, null)));
+    }
+
+    @Operation(summary = "Upload inline post image")
+    @PostMapping(value = "/images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<Map<String, String>>> uploadInlineImage(
+            @RequestHeader("Authorization") String token,
+            @RequestParam("image") MultipartFile image) {
+        Long userId = jwtUtil.extractUserId(token);
+        String url = postService.saveInlineImage(userId, image);
+        return ResponseEntity.ok(ApiResponse.ok(Map.of("url", url)));
+    }
+
+    @Operation(summary = "Get post detail")
     @GetMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> getPost(
             @PathVariable Long postId,
@@ -51,7 +80,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPost(postId, userId)));
     }
 
-    @Operation(summary = "인기 게시글 조회 (조회수 내림차순)")
+    @Operation(summary = "Get popular posts")
     @GetMapping("/popular")
     public ResponseEntity<ApiResponse<List<PostListResponse>>> getPopularPosts(
             @RequestParam String board,
@@ -59,7 +88,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPopularPosts(board, days)));
     }
 
-    @Operation(summary = "게시판별 목록 조회 / 검색 (제목, 태그, 복합)")
+    @Operation(summary = "Get posts by board")
     @GetMapping
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(
             @RequestParam String board,
@@ -69,7 +98,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.searchPosts(board, title, tagIds, pageable)));
     }
 
-    @Operation(summary = "게시글 수정")
+    @Operation(summary = "Update post")
     @PutMapping("/{postId}")
     public ResponseEntity<ApiResponse<PostResponse>> updatePost(
             @RequestHeader("Authorization") String token,
@@ -79,7 +108,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(postService.updatePost(userId, postId, request)));
     }
 
-    @Operation(summary = "게시글 삭제")
+    @Operation(summary = "Delete post")
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @RequestHeader("Authorization") String token,
@@ -89,7 +118,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    @Operation(summary = "게시글 좋아요")
+    @Operation(summary = "Like post")
     @PostMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<Void>> likePost(
             @RequestHeader("Authorization") String token,
@@ -99,7 +128,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    @Operation(summary = "게시글 좋아요 취소")
+    @Operation(summary = "Unlike post")
     @DeleteMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<Void>> unlikePost(
             @RequestHeader("Authorization") String token,
@@ -109,7 +138,7 @@ public class PostController {
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
 
-    @Operation(summary = "게시글 좋아요 여부 조회")
+    @Operation(summary = "Check post like")
     @GetMapping("/{postId}/like")
     public ResponseEntity<ApiResponse<Boolean>> isLikedPost(
             @RequestHeader("Authorization") String token,

@@ -17,6 +17,10 @@ public class ImageStorageService {
         return storageProvider.store(file, "posts/" + postId);
     }
 
+    public ImageUploadResult storeInlinePostImage(MultipartFile file) {
+        return storageProvider.store(file, "posts");
+    }
+
     // 미션 샘플 이미지 저장 (예: /images/missions/{missionId}/uuid.jpg)
     public ImageUploadResult storeMissionImage(Long missionId, MultipartFile file) {
         return storageProvider.store(file, "missions/" + missionId);
