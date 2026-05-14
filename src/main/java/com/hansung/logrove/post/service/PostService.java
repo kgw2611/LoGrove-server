@@ -28,7 +28,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
-    private static final long INLINE_IMAGE_MAX_BYTES = 10L * 1024L * 1024L;
+    private static final long INLINE_IMAGE_MAX_BYTES = 50L * 1024L * 1024L;
     private static final List<String> INLINE_IMAGE_CONTENT_TYPES = List.of(
             "image/png",
             "image/jpeg",
