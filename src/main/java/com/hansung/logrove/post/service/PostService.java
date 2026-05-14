@@ -28,6 +28,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PostService {
 
+    private static final long INLINE_IMAGE_MAX_BYTES = 10L * 1024L * 1024L;
+    private static final List<String> INLINE_IMAGE_CONTENT_TYPES = List.of(
+            "image/png",
+            "image/jpeg",
+            "image/webp",
+            "image/gif"
+    );
+
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final PostTagRepository postTagRepository;
@@ -70,6 +78,16 @@ public class PostService {
         }
 
         return PostResponse.from(post);
+    }
+
+    @Transactional
+    public String saveInlineImage(Long userId, MultipartFile image) {
+        userRepository.findById(userId)
+                .orElseThrow(() -> new LoGroveException(ErrorCode.USER_NOT_FOUND));
+
+        validateInlineImage(image);
+
+        return imageStorageService.storeInlinePostImage(image).getUrl();
     }
 
     // ── 게시글 상세 조회 ──────────────────────────────────────
@@ -172,6 +190,21 @@ public class PostService {
     private void validateOwner(Post post, Long userId) {
         if (!post.getUser().getId().equals(userId)) {
             throw new LoGroveException(ErrorCode.FORBIDDEN);
+        }
+    }
+
+    private void validateInlineImage(MultipartFile image) {
+        if (image == null || image.isEmpty()) {
+            throw new LoGroveException(ErrorCode.INVALID_INPUT);
+        }
+
+        String contentType = image.getContentType();
+        if (contentType == null || !INLINE_IMAGE_CONTENT_TYPES.contains(contentType.toLowerCase())) {
+            throw new LoGroveException(ErrorCode.INVALID_INPUT);
+        }
+
+        if (image.getSize() > INLINE_IMAGE_MAX_BYTES) {
+            throw new LoGroveException(ErrorCode.INVALID_INPUT);
         }
     }
 
