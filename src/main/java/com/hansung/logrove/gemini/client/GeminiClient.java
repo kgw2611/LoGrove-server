@@ -41,7 +41,7 @@ public class GeminiClient {
 
     private String call(String url, MultipartFile file, String prompt) {
         try {
-            byte[] webpBytes = imageConverter.toWebP(file.getBytes(), 1024);
+            byte[] webpBytes = imageConverter.toWebP(file.getBytes(), 1024).getBytes();
             String base64Image = Base64.getEncoder().encodeToString(webpBytes);
             String mimeType = "image/webp";
 

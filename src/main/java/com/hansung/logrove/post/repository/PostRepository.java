@@ -25,6 +25,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     List<Post> findByUser_Id(Long userId);
 
+    List<Post> findTop4ByBoardTypeAndIdGreaterThanOrderByIdAsc(BoardType boardType, Long id);
+
+    List<Post> findTop4ByBoardTypeAndIdLessThanOrderByIdDesc(BoardType boardType, Long id);
+
     @Query("SELECT p FROM Post p WHERE p.boardType = :boardType ORDER BY p.view DESC")
     List<Post> findPopularByBoardType(@Param("boardType") BoardType boardType);
 

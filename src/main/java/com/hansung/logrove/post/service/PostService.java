@@ -2,6 +2,7 @@ package com.hansung.logrove.post.service;
 
 import com.hansung.logrove.global.exception.ErrorCode;
 import com.hansung.logrove.global.exception.LoGroveException;
+import com.hansung.logrove.post.dto.NeighborPostsResponse;
 import com.hansung.logrove.post.dto.PostCreateRequest;
 import com.hansung.logrove.post.dto.PostListResponse;
 import com.hansung.logrove.post.dto.PostResponse;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -63,9 +65,14 @@ public class PostService {
         postRepository.save(post);
 
         if (images != null) {
-            for (int i = 0; i < images.size(); i++) {
-                ImageUploadResult result = imageStorageService.storePostImage(post.getId(), images.get(i));
-                post.getImages().add(new PostImage(result.getUrl(), i+1, post));
+            for (MultipartFile imageFile : images) {
+                ImageUploadResult result = imageStorageService.storePostImage(post.getId(), imageFile);
+                post.getImages().add(new PostImage(
+                        result.getUrl(),
+                        post,
+                        result.getWidth(),
+                        result.getHeight()
+                ));
             }
         }
 
@@ -156,6 +163,36 @@ public class PostService {
     }
 
     // ── 게시판 내 검색 ────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public NeighborPostsResponse getNeighbors(String boardName, Long postId, int count) {
+        BoardType boardType = findBoardType(boardName);
+        int limit = Math.max(1, Math.min(count, 4));
+
+        List<Post> newerCandidates = postRepository.findTop4ByBoardTypeAndIdGreaterThanOrderByIdAsc(boardType, postId);
+        List<Post> olderCandidates = postRepository.findTop4ByBoardTypeAndIdLessThanOrderByIdDesc(boardType, postId);
+
+        List<Post> newer = new ArrayList<>(newerCandidates.subList(0, Math.min(limit, newerCandidates.size())));
+        List<Post> older = new ArrayList<>(olderCandidates.subList(0, Math.min(limit, olderCandidates.size())));
+
+        int newerShort = limit - newer.size();
+        int olderShort = limit - older.size();
+
+        if (newerShort > 0 && olderCandidates.size() > older.size()) {
+            int take = Math.min(newerShort, olderCandidates.size() - older.size());
+            older.addAll(olderCandidates.subList(older.size(), older.size() + take));
+        }
+
+        if (olderShort > 0 && newerCandidates.size() > newer.size()) {
+            int take = Math.min(olderShort, newerCandidates.size() - newer.size());
+            newer.addAll(newerCandidates.subList(newer.size(), newer.size() + take));
+        }
+
+        return new NeighborPostsResponse(
+                newer.stream().map(PostListResponse::from).toList(),
+                older.stream().map(PostListResponse::from).toList()
+        );
+    }
 
     @Transactional(readOnly = true)
     public Page<PostListResponse> searchPosts(String boardName, String title, List<Long> tagIds, Pageable pageable) {

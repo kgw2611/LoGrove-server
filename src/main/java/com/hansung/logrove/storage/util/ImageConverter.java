@@ -1,5 +1,6 @@
 package com.hansung.logrove.storage.util;
 
+import com.hansung.logrove.storage.dto.ConvertedImage;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Component;
 
@@ -11,17 +12,16 @@ import java.io.ByteArrayOutputStream;
 @Component
 public class ImageConverter {
 
-    public byte[] toWebP(byte[] inputBytes, int maxDimension) {
+    public ConvertedImage toWebP(byte[] inputBytes, int maxDimension) {
         try {
             BufferedImage original = ImageIO.read(new ByteArrayInputStream(inputBytes));
             if (original == null) {
-                return inputBytes;
+                return new ConvertedImage(inputBytes, null, null);
             }
 
             int targetWidth = original.getWidth();
             int targetHeight = original.getHeight();
 
-            // Downscale oversized images only. Small images must not be enlarged.
             if (targetWidth > maxDimension || targetHeight > maxDimension) {
                 double ratio = Math.min(
                         (double) maxDimension / targetWidth,
@@ -37,9 +37,10 @@ public class ImageConverter {
                     .keepAspectRatio(true)
                     .outputFormat("webp")
                     .toOutputStream(out);
-            return out.toByteArray();
+
+            return new ConvertedImage(out.toByteArray(), targetWidth, targetHeight);
         } catch (Exception e) {
-            return inputBytes;
+            return new ConvertedImage(inputBytes, null, null);
         }
     }
 }

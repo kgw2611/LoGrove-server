@@ -2,6 +2,7 @@ package com.hansung.logrove.post.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.hansung.logrove.post.entity.Post;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,9 @@ public class PostResponse {
     private LocalDateTime updatedAt;
     private Long userId;
     private String nickname;
+    private Integer authorLevel;
     private List<String> imageUrls;
+    private List<ImageMeta> images;
     private List<String> tagNames;
     private int likeCount;
     private String profileUrl;
@@ -27,6 +30,14 @@ public class PostResponse {
     // @JsonProperty 없으면 Lombok이 isLiked() getter를 만들어 Jackson이 "liked"로 직렬화함
     @JsonProperty("isLiked")
     private boolean isLiked;
+
+    @Getter
+    @AllArgsConstructor
+    public static class ImageMeta {
+        private String url;
+        private Integer width;
+        private Integer height;
+    }
 
     // isLiked 상태를 알 수 없는 경우 (작성/수정 응답 등) — 기본값 false
     public static PostResponse from(Post post) {
@@ -45,8 +56,12 @@ public class PostResponse {
         dto.updatedAt = post.getUpdatedAt();
         dto.userId = post.getUser() != null ? post.getUser().getId() : null;
         dto.nickname = post.getUser() != null ? post.getUser().getNickname() : null;
+        dto.authorLevel = post.getUser() != null ? post.getUser().getLevel() : null;
         dto.imageUrls = post.getImages().stream()
                 .map(img -> img.getUrl())
+                .toList();
+        dto.images = post.getImages().stream()
+                .map(img -> new ImageMeta(img.getUrl(), img.getWidth(), img.getHeight()))
                 .toList();
         dto.tagNames = post.getTags().stream()
                 .map(pt -> pt.getTag().getName())
