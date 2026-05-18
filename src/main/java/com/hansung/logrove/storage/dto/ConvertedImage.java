@@ -5,10 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ImageUploadResult {
+public class ConvertedImage {
 
-    private String url;
-    private String filePath;
+    private byte[] bytes;
     private Integer width;
     private Integer height;
 }

@@ -1,6 +1,7 @@
 package com.hansung.logrove.post.dto;
 
 import com.hansung.logrove.post.entity.Post;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
@@ -17,8 +18,18 @@ public class PostListResponse {
     private String boardType;
     private LocalDateTime createdAt;
     private String nickname;
+    private Integer authorLevel;
     private List<String> tagNames;
     private List<String> imageUrls;
+    private List<ImageMeta> images;
+
+    @Getter
+    @AllArgsConstructor
+    public static class ImageMeta {
+        private String url;
+        private Integer width;
+        private Integer height;
+    }
 
     public static PostListResponse from(Post post) {
         PostListResponse dto = new PostListResponse();
@@ -29,11 +40,15 @@ public class PostListResponse {
         dto.boardType = post.getBoardType().getBoard();
         dto.createdAt = post.getCreatedAt();
         dto.nickname = post.getUser() != null ? post.getUser().getNickname() : null;
+        dto.authorLevel = post.getUser() != null ? post.getUser().getLevel() : null;
         dto.tagNames = post.getTags().stream()
                 .map(pt -> pt.getTag().getName())
                 .toList();
         dto.imageUrls = post.getImages().stream()
                 .map(img -> img.getUrl())
+                .toList();
+        dto.images = post.getImages().stream()
+                .map(img -> new ImageMeta(img.getUrl(), img.getWidth(), img.getHeight()))
                 .toList();
         return dto;
     }

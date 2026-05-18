@@ -2,6 +2,7 @@ package com.hansung.logrove.post.controller;
 
 import com.hansung.logrove.global.jwt.JwtUtil;
 import com.hansung.logrove.global.response.ApiResponse;
+import com.hansung.logrove.post.dto.NeighborPostsResponse;
 import com.hansung.logrove.post.dto.PostCreateRequest;
 import com.hansung.logrove.post.dto.PostListResponse;
 import com.hansung.logrove.post.dto.PostResponse;
@@ -86,6 +87,15 @@ public class PostController {
             @RequestParam String board,
             @RequestParam(required = false) Integer days) {
         return ResponseEntity.ok(ApiResponse.ok(postService.getPopularPosts(board, days)));
+    }
+
+    @Operation(summary = "Get neighboring posts")
+    @GetMapping("/{postId}/neighbors")
+    public ResponseEntity<ApiResponse<NeighborPostsResponse>> getNeighbors(
+            @PathVariable Long postId,
+            @RequestParam String board,
+            @RequestParam(defaultValue = "2") int count) {
+        return ResponseEntity.ok(ApiResponse.ok(postService.getNeighbors(board, postId, count)));
     }
 
     @Operation(summary = "Get posts by board")

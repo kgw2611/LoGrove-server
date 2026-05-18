@@ -1,6 +1,7 @@
 package com.hansung.logrove.storage.provider;
 
 import com.hansung.logrove.storage.dto.ImageUploadResult;
+import com.hansung.logrove.storage.dto.ConvertedImage;
 import com.hansung.logrove.storage.util.ImageConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,11 +34,16 @@ public class LocalFileStorageProvider {
             String savedFilename = UUID.randomUUID() + ".webp";
             Path filePath = dirPath.resolve(savedFilename);
 
-            byte[] webpBytes = imageConverter.toWebP(file.getBytes(), resolveMaxDimension(subDir));
-            Files.write(filePath, webpBytes);
+            ConvertedImage converted = imageConverter.toWebP(file.getBytes(), resolveMaxDimension(subDir));
+            Files.write(filePath, converted.getBytes());
 
             String accessUrl = "/images/" + subDir + "/" + savedFilename;
-            return new ImageUploadResult(accessUrl, filePath.toString());
+            return new ImageUploadResult(
+                    accessUrl,
+                    filePath.toString(),
+                    converted.getWidth(),
+                    converted.getHeight()
+            );
 
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 실패: " + e.getMessage());

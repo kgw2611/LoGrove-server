@@ -23,6 +23,7 @@ public class CommentResponse {
     private Long userId;
     private String nickname;
     private String profileUrl;
+    private Integer authorLevel;
 
     private int likeCount;
 
@@ -47,6 +48,7 @@ public class CommentResponse {
                 .userId(comment.getUser().getId())
                 .nickname(comment.getUser().getNickname())
                 .profileUrl(comment.getUser().getProfileUrl())
+                .authorLevel(comment.getUser() != null ? comment.getUser().getLevel() : null)
                 .likeCount(comment.getLikes().size())
                 .isLiked(isLiked)
                 .replies(replies)
