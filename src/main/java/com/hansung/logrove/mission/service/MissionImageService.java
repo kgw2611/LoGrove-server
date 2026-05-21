@@ -28,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Transactional(readOnly = true)
 public class MissionImageService {
 
+    private static final Long CASUAL_MISSION_ID = 57L;
+
     private final MissionImageRepository missionImageRepository;
     private final MissionImageResultRepository missionImageResultRepository;
     private final MissionStateRepository missionStateRepository;
@@ -52,6 +54,9 @@ public class MissionImageService {
      */
     @Transactional
     public MissionResultResponse analyzeImage(Long userId, Long missionId, MultipartFile file) {
+        if (CASUAL_MISSION_ID.equals(missionId)) {
+            throw new IllegalArgumentException("자유 채점은 전용 API를 사용해 주세요.");
+        }
 
         // 1. 엔티티 조회
         User user = userRepository.findById(userId)

@@ -2,6 +2,7 @@ package com.hansung.logrove.gemini.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hansung.logrove.gemini.dto.CasualEvaluationResponse;
 import com.hansung.logrove.gemini.dto.GeminiEvaluationResponse;
 import com.hansung.logrove.gemini.dto.GeminiTagResponse;
 import com.hansung.logrove.tag.entity.TagName;
@@ -53,6 +54,20 @@ public class GeminiResponseParser {
 
         } catch (Exception e) {
             return new GeminiEvaluationResponse(0, false, "사진이 주제와 관련 없거나 분석할 수 없습니다.");
+        }
+    }
+
+    public CasualEvaluationResponse parseCasualResponse(String rawText) {
+        try {
+            String json = extractJson(rawText);
+            JsonNode node = objectMapper.readTree(json);
+
+            int score = node.path("score").asInt(0);
+            String reason = node.path("reason").asText("평가 결과를 받지 못했어요.");
+
+            return new CasualEvaluationResponse(score, reason);
+        } catch (Exception e) {
+            return new CasualEvaluationResponse(0, "평가 결과를 받지 못했어요.");
         }
     }
 
