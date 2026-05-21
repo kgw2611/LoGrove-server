@@ -17,6 +17,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MissionService {
 
+    private static final String CASUAL_PHOTO_THEME = "자유주제";
+
     private final MissionRepository missionRepository;
     private final MissionStateRepository missionStateRepository;
     private final MissionImageResultRepository missionImageResultRepository;
@@ -67,6 +69,7 @@ public class MissionService {
 
         return missions.stream()
                 .filter(mission -> mission.getMissionImage() != null)
+                .filter(mission -> !CASUAL_PHOTO_THEME.equals(mission.getMissionImage().getTheme()))
                 .map(mission -> {
                     String state = missionStateRepository.findByUserIdAndMissionId(userId, mission.getId())
                             .map(s -> s.getState().name())

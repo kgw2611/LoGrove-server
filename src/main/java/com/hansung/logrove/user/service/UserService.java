@@ -32,6 +32,7 @@ import java.util.List;
 public class UserService {
 
     private static final int[] LEVEL_THRESHOLDS = {0, 500, 1500, 3000, 5500, 9000, 13300};
+    private static final String CASUAL_PHOTO_THEME = "자유주제";
 
     private final UserRepository userRepository;
     private final UserRoleRepository userRoleRepository;
@@ -156,7 +157,7 @@ public class UserService {
         missionImageResultRepository.findByUserId(userId).stream()
                 .filter(r -> r.getResultUrl() != null)
                 .map(r -> new MyGalleryImageResponse(
-                        r.getId(), r.getResultUrl(), "mission",
+                        r.getId(), r.getResultUrl(), getMissionImageSource(r),
                         r.getMission().getMissionImage().getTheme(), r.getSubmittedAt(), r.getId()))
                 .forEach(result::add);
 
@@ -165,5 +166,10 @@ public class UserService {
                 java.util.Comparator.nullsLast(java.util.Comparator.reverseOrder())));
 
         return result;
+    }
+
+    private String getMissionImageSource(MissionImageResult result) {
+        String theme = result.getMission().getMissionImage().getTheme();
+        return CASUAL_PHOTO_THEME.equals(theme) ? "casual" : "mission";
     }
 }
