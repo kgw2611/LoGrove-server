@@ -12,7 +12,7 @@ public enum TagName {
     // 포럼
     CANON("캐논"), SONY("소니"), NIKON("니콘"), FUJIFILM("후지필름"),
     LEICA("라이카"), HASSELBLAD("핫셀블라드"), PANASONIC("파나소닉"),
-    OLYMPUS("올림푸스"), OTHER("기타"),
+    OLYMPUS("올림푸스"), OTHER("전체"),
 
     // 갤러리 - 피사체
     PERSON("인물"), LANDSCAPE("풍경"), NIGHT_VIEW("야경"), CITY("도시"),

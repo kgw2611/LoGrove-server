@@ -195,14 +195,29 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Page<PostListResponse> searchPosts(String boardName, String title, List<Long> tagIds, Pageable pageable) {
+    public Page<PostListResponse> searchPosts(String boardName, String title, String searchType, String keyword, List<Long> tagIds, Pageable pageable) {
         BoardType boardType = findBoardType(boardName);
         Page<Post> postPage;
-        if (title != null && tagIds != null) {
-            postPage = postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, title, tagIds, pageable);
-        } else if (title != null) {
-            postPage = postRepository.findByBoardTypeAndTitleContaining(boardType, title, pageable);
-        } else if (tagIds != null) {
+        boolean hasTagIds = tagIds != null && !tagIds.isEmpty();
+        String normalizedKeyword = normalizeSearchKeyword(keyword);
+        String normalizedTitle = normalizeSearchKeyword(title);
+        String normalizedSearchType = searchType == null ? "title_content" : searchType;
+
+        if (normalizedKeyword != null) {
+            if ("author".equals(normalizedSearchType)) {
+                postPage = hasTagIds
+                        ? postRepository.findByBoardTypeAndAuthorContainingAndTagIds(boardType, normalizedKeyword, tagIds, pageable)
+                        : postRepository.findByBoardTypeAndAuthorContaining(boardType, normalizedKeyword, pageable);
+            } else {
+                postPage = hasTagIds
+                        ? postRepository.findByBoardTypeAndTitleOrContentContainingAndTagIds(boardType, normalizedKeyword, tagIds, pageable)
+                        : postRepository.findByBoardTypeAndTitleOrContentContaining(boardType, normalizedKeyword, pageable);
+            }
+        } else if (normalizedTitle != null && hasTagIds) {
+            postPage = postRepository.findByBoardTypeAndTitleContainingAndTagIds(boardType, normalizedTitle, tagIds, pageable);
+        } else if (normalizedTitle != null) {
+            postPage = postRepository.findByBoardTypeAndTitleContaining(boardType, normalizedTitle, pageable);
+        } else if (hasTagIds) {
             postPage = postRepository.findByBoardTypeAndTagIds(boardType, tagIds, pageable);
         } else {
             Page<Long> idPage = postRepository.findIdsByBoardType(boardType, pageable);
@@ -243,6 +258,15 @@ public class PostService {
         if (image.getSize() > INLINE_IMAGE_MAX_BYTES) {
             throw new LoGroveException(ErrorCode.INVALID_INPUT);
         }
+    }
+
+    private String normalizeSearchKeyword(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     // ── 공통: rowNumber 계산 후 Page 반환 ────────────────────────

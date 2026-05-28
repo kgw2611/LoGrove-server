@@ -103,9 +103,11 @@ public class PostController {
     public ResponseEntity<ApiResponse<Page<PostListResponse>>> getPosts(
             @RequestParam String board,
             @RequestParam(required = false) String title,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
             @RequestParam(required = false) List<Long> tagIds,
             @ParameterObject @PageableDefault(size = 10) Pageable pageable) {
-        return ResponseEntity.ok(ApiResponse.ok(postService.searchPosts(board, title, tagIds, pageable)));
+        return ResponseEntity.ok(ApiResponse.ok(postService.searchPosts(board, title, searchType, keyword, tagIds, pageable)));
     }
 
     @Operation(summary = "Update post")
