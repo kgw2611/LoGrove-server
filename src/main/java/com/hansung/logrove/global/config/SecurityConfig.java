@@ -67,7 +67,11 @@ public class SecurityConfig {
                 "http://logrove.com",
                 "http://www.logrove.com",
                 "https://logrove.com",
-                "https://www.logrove.com"
+                "https://www.logrove.com",
+                "https://localhost",
+                "https://localhost:*",
+                "capacitor://localhost",
+                "ionic://localhost"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
