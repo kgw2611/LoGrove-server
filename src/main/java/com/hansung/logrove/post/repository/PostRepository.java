@@ -37,9 +37,21 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     Page<Post> findByBoardTypeAndTitleContaining(BoardType boardType, String title, Pageable pageable);
 
+    @Query("SELECT p FROM Post p WHERE p.boardType = :boardType AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
+    Page<Post> findByBoardTypeAndTitleOrContentContaining(@Param("boardType") BoardType boardType, @Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.boardType = :boardType AND p.user.nickname LIKE %:keyword%")
+    Page<Post> findByBoardTypeAndAuthorContaining(@Param("boardType") BoardType boardType, @Param("keyword") String keyword, Pageable pageable);
+
     @Query("SELECT DISTINCT p FROM Post p JOIN PostTag pt ON pt.post = p WHERE p.boardType = :boardType AND pt.tag.id IN :tagIds")
     Page<Post> findByBoardTypeAndTagIds(@Param("boardType") BoardType boardType, @Param("tagIds") List<Long> tagIds, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Post p JOIN PostTag pt ON pt.post = p WHERE p.boardType = :boardType AND p.title LIKE %:title% AND pt.tag.id IN :tagIds")
     Page<Post> findByBoardTypeAndTitleContainingAndTagIds(@Param("boardType") BoardType boardType, @Param("title") String title, @Param("tagIds") List<Long> tagIds, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Post p JOIN PostTag pt ON pt.post = p WHERE p.boardType = :boardType AND (p.title LIKE %:keyword% OR p.content LIKE %:keyword%) AND pt.tag.id IN :tagIds")
+    Page<Post> findByBoardTypeAndTitleOrContentContainingAndTagIds(@Param("boardType") BoardType boardType, @Param("keyword") String keyword, @Param("tagIds") List<Long> tagIds, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Post p JOIN PostTag pt ON pt.post = p WHERE p.boardType = :boardType AND p.user.nickname LIKE %:keyword% AND pt.tag.id IN :tagIds")
+    Page<Post> findByBoardTypeAndAuthorContainingAndTagIds(@Param("boardType") BoardType boardType, @Param("keyword") String keyword, @Param("tagIds") List<Long> tagIds, Pageable pageable);
 }
