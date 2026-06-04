@@ -32,11 +32,10 @@ public class GeminiResponseParser {
                     if (tagName != null) {
                         tags.add(tagName);
                     }
-                    // null이면 Gemini가 목록에 없는 태그를 반환한 것 → 무시
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Gemini 태그 응답 파싱 실패: " + e.getMessage());
+            throw new RuntimeException("Gemini tag response parsing failed: " + e.getMessage());
         }
         return new GeminiTagResponse(tags);
     }
@@ -51,9 +50,8 @@ public class GeminiResponseParser {
             boolean passed = score >= passScore;
 
             return new GeminiEvaluationResponse(score, passed, reason);
-
         } catch (Exception e) {
-            return new GeminiEvaluationResponse(0, false, "사진이 주제와 관련 없거나 분석할 수 없습니다.");
+            return new GeminiEvaluationResponse(0, false, "사진을 주제와 관련 있게 분석하지 못했습니다.");
         }
     }
 
@@ -64,10 +62,11 @@ public class GeminiResponseParser {
 
             int score = node.path("score").asInt(0);
             String reason = node.path("reason").asText("평가 결과를 받지 못했어요.");
+            String scoreReason = node.path("scoreReason").asText("구도, 피사체 명확성, 빛과 색감 기준으로 점수를 계산했어요.");
 
-            return new CasualEvaluationResponse(score, reason);
+            return new CasualEvaluationResponse(score, reason, scoreReason);
         } catch (Exception e) {
-            return new CasualEvaluationResponse(0, "평가 결과를 받지 못했어요.");
+            return new CasualEvaluationResponse(0, "평가 결과를 받지 못했어요.", "AI 응답을 해석하지 못해 점수 산출 이유를 받을 수 없었어요.");
         }
     }
 
@@ -75,7 +74,7 @@ public class GeminiResponseParser {
         int start = text.indexOf("{");
         int end = text.lastIndexOf("}");
         if (start == -1 || end == -1) {
-            throw new RuntimeException("JSON 형식을 찾을 수 없음: " + text);
+            throw new RuntimeException("JSON format not found: " + text);
         }
         return text.substring(start, end + 1);
     }

@@ -16,7 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,21 +38,41 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<CommentResponse> getComments(Long postId, Long userId) {
         validatePost(postId);
-        return commentRepository.findByPost_IdAndParentIsNullOrderByCreatedAtAsc(postId)
-                .stream()
+        List<Comment> topLevelComments = commentRepository.findTopLevelByPostIdWithPostAndUser(postId);
+        if (topLevelComments.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> parentIds = topLevelComments.stream()
+                .map(Comment::getId)
+                .toList();
+        List<Comment> replies = commentRepository.findRepliesByParentIdsWithPostAndUser(parentIds);
+
+        List<Comment> allComments = new ArrayList<>(topLevelComments.size() + replies.size());
+        allComments.addAll(topLevelComments);
+        allComments.addAll(replies);
+
+        List<Long> commentIds = allComments.stream()
+                .map(Comment::getId)
+                .toList();
+        Map<Long, Integer> likeCountMap = loadLikeCounts(commentIds);
+        Set<Long> likedCommentIds = userId == null
+                ? Collections.emptySet()
+                : new HashSet<>(commentLikeRepository.findLikedCommentIdsByUserIdAndCommentIds(userId, commentIds));
+
+        Map<Long, List<Comment>> repliesByParentId = replies.stream()
+                .collect(Collectors.groupingBy(reply -> reply.getParent().getId()));
+
+        return topLevelComments.stream()
                 .map(comment -> {
-                    boolean isLiked = userId != null &&
-                            commentLikeRepository.existsByUser_IdAndComment_Id(userId, comment.getId());
-                    List<CommentResponse> replies = comment.getReplies().stream()
-                            .map(reply -> {
-                                boolean replyIsLiked = userId != null &&
-                                        commentLikeRepository.existsByUser_IdAndComment_Id(userId, reply.getId());
-                                return CommentResponse.from(reply, replyIsLiked);
-                            })
-                            .collect(Collectors.toList());
-                    return CommentResponse.from(comment, isLiked, replies);
+                    List<CommentResponse> replyResponses = repliesByParentId
+                            .getOrDefault(comment.getId(), List.of())
+                            .stream()
+                            .map(reply -> toResponse(reply, likedCommentIds, likeCountMap, List.of()))
+                            .toList();
+                    return toResponse(comment, likedCommentIds, likeCountMap, replyResponses);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ── 댓글 단건 조회 ──────────────────────────────────────────
@@ -143,6 +168,31 @@ public class CommentService {
     // ── 내부 헬퍼 메서드 ────────────────────────────────────────
 
     // 게시글 존재 여부 검증 (댓글 조회 전 선행 체크)
+    private Map<Long, Integer> loadLikeCounts(List<Long> commentIds) {
+        if (commentIds.isEmpty()) {
+            return Map.of();
+        }
+
+        return commentLikeRepository.countLikesByCommentIds(commentIds).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Number) row[1]).intValue()
+                ));
+    }
+
+    private CommentResponse toResponse(
+            Comment comment,
+            Set<Long> likedCommentIds,
+            Map<Long, Integer> likeCountMap,
+            List<CommentResponse> replies) {
+        return CommentResponse.from(
+                comment,
+                likedCommentIds.contains(comment.getId()),
+                replies,
+                likeCountMap.getOrDefault(comment.getId(), 0)
+        );
+    }
+
     private void validatePost(Long postId) {
         if (!postRepository.existsById(postId)) {
             throw new LoGroveException(ErrorCode.POST_NOT_FOUND);

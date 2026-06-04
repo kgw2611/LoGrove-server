@@ -37,6 +37,10 @@ public class CommentResponse {
     }
 
     public static CommentResponse from(Comment comment, boolean isLiked, List<CommentResponse> replies) {
+        return from(comment, isLiked, replies, comment.getLikes().size());
+    }
+
+    public static CommentResponse from(Comment comment, boolean isLiked, List<CommentResponse> replies, int likeCount) {
         return CommentResponse.builder()
                 .commentId(comment.getId())
                 .postId(comment.getPost().getId())
@@ -49,7 +53,7 @@ public class CommentResponse {
                 .nickname(comment.getUser().getNickname())
                 .profileUrl(comment.getUser().getProfileUrl())
                 .authorLevel(comment.getUser() != null ? comment.getUser().getLevel() : null)
-                .likeCount(comment.getLikes().size())
+                .likeCount(likeCount)
                 .isLiked(isLiked)
                 .replies(replies)
                 .build();

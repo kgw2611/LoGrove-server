@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class CasualEvaluationResponse {
     private Integer score;
     private String reason;
+    private String scoreReason;
 }
