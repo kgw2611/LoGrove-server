@@ -64,6 +64,7 @@ public class CasualPhotoService {
                 saved.getId(),
                 saved.getScore(),
                 evaluation.getReason(),
+                evaluation.getScoreReason(),
                 saved.getResultUrl(),
                 saved.getSubmittedAt()
         );
